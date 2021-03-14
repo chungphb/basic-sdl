@@ -33,10 +33,18 @@ public:
 		return success;
 	}
 
-	void applyMedia() {
-		SDL_BlitSurface(imageSurface, nullptr, screenSurface, nullptr);
-		SDL_UpdateWindowSurface(window);
-		SDL_Delay(2000);
+	void run() {
+		bool quit = false;
+		SDL_Event e;
+		while (!quit) {
+			while (SDL_PollEvent(&e) != 0) {
+				if (e.type == SDL_QUIT) {
+					quit = true;
+				}
+			}
+			SDL_BlitSurface(imageSurface, nullptr, screenSurface, nullptr);
+			SDL_UpdateWindowSurface(window);
+		}
 	}
 
 	void close() {
@@ -63,7 +71,7 @@ int main(int argc, char** argv) {
 		if (!mainWindow.loadMedia()) {
 			printf("Failed to load media!\n");
 		} else {
-			mainWindow.applyMedia();
+			mainWindow.run();
 		}
 	}
 	mainWindow.close();
