@@ -16,3 +16,7 @@ target_link_libraries(TestSDL2 ${SDL2_LIBRARY})
 add_executable(TestSDL2_image "src/TestSDL2_image.cpp")
 target_include_directories(TestSDL2_image PRIVATE ${SDL2_image_INCLUDE_DIR})
 target_link_libraries(TestSDL2_image ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
+
+add_executable(TestTexture "src/TestTexture.cpp")
+target_include_directories(TestTexture PRIVATE ${SDL2_image_INCLUDE_DIR})
+target_link_libraries(TestTexture ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
