@@ -96,7 +96,12 @@ public:
 					}
 				}
 			}
-			SDL_BlitSurface(currentSurface, nullptr, screenSurface, nullptr);
+			SDL_Rect stretchRect;
+			stretchRect.x = WINDOW_WIDTH >> 2;
+			stretchRect.y = WINDOW_HEIGHT >> 2;
+			stretchRect.w = WINDOW_WIDTH >> 1;
+			stretchRect.h = WINDOW_HEIGHT >> 1;
+			SDL_BlitScaled(currentSurface, nullptr, screenSurface, &stretchRect);
 			SDL_UpdateWindowSurface(window);
 		}
 	}
@@ -113,11 +118,18 @@ public:
 	}
 
 	SDL_Surface* loadSurface(std::string path) {
+		SDL_Surface* optimizedSurface = nullptr;
 		SDL_Surface* loadedSurface = SDL_LoadBMP(path.c_str());
 		if (!loadedSurface) {
 			printf("Unable to load image %s! Error: %s\n", path.c_str(), SDL_GetError());
+		} else {
+			optimizedSurface = SDL_ConvertSurface(loadedSurface, screenSurface->format, 0);
+			if (!optimizedSurface) {
+				printf("Unable to optimize image %s! Error: %s\n", path.c_str(), SDL_GetError());
+			}
+			SDL_FreeSurface(loadedSurface);
 		}
-		return loadedSurface;
+		return optimizedSurface;
 	}
 
 private:
