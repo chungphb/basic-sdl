@@ -18,7 +18,7 @@ struct MainWindow {
 public:
 	bool init() {
 		bool success = true;
-		if (SDL_Init(SDL_INIT_VIDEO)) {
+		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 			printf("SDL could not initialize! Error: %s\n", SDL_GetError());
 			success = false;
 		} else {
