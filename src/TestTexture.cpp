@@ -14,6 +14,9 @@ public:
 			printf("SDL could not initialize! Error: %s\n", SDL_GetError());
 			success = false;
 		} else {
+			if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
+				printf("Warning: Linear texture filtering is not enabled!");
+			}
 			window = SDL_CreateWindow("Hello world!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 			if (!window) {
 				printf("Window could not be created! Error: %s\n", SDL_GetError());
@@ -55,8 +58,35 @@ public:
 					quit = true;
 				}
 			}
+
+			// Image rendering
 			SDL_RenderClear(renderer);
 			SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+
+			// Geometry rendering
+			SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+			SDL_RenderClear(renderer);
+			SDL_Rect rect;
+			rect.x = WINDOW_WIDTH / 4;
+			rect.y = WINDOW_HEIGHT / 4;
+			rect.w = WINDOW_WIDTH / 2;
+			rect.h = WINDOW_HEIGHT / 2;
+			SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0xFF, 0xFF);
+			SDL_RenderFillRect(renderer, &rect);
+			SDL_Rect otherRect;
+			otherRect.x = WINDOW_WIDTH / 6;
+			otherRect.y = WINDOW_HEIGHT / 6;
+			otherRect.w = 2 * WINDOW_WIDTH / 3;
+			otherRect.h = 2 * WINDOW_HEIGHT / 3;
+			SDL_SetRenderDrawColor(renderer, 0xFF, 0x69, 0xB4, 0xFF);
+			SDL_RenderDrawRect(renderer, &otherRect);
+			SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+			SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+			SDL_RenderDrawLine(renderer, WINDOW_WIDTH / 3, WINDOW_HEIGHT / 2, 2 * WINDOW_WIDTH / 3, WINDOW_HEIGHT / 2);
+			for (int i = WINDOW_HEIGHT / 3; i <= 2 * WINDOW_HEIGHT / 3; i += WINDOW_HEIGHT / 120) {
+				SDL_RenderDrawPoint(renderer, WINDOW_WIDTH / 2, i);
+			}
+
 			SDL_RenderPresent(renderer);
 		}
 	}
