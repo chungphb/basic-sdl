@@ -59,13 +59,16 @@ public:
 				}
 			}
 
-			// Image rendering
+			// IMAGE RENDERING
+
 			SDL_RenderClear(renderer);
 			SDL_RenderCopy(renderer, texture, nullptr, nullptr);
 
-			// Geometry rendering
+			// GEOMETRY RENDERING
+
 			SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 			SDL_RenderClear(renderer);
+
 			SDL_Rect rect;
 			rect.x = WINDOW_WIDTH / 4;
 			rect.y = WINDOW_HEIGHT / 4;
@@ -73,6 +76,7 @@ public:
 			rect.h = WINDOW_HEIGHT / 2;
 			SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0xFF, 0xFF);
 			SDL_RenderFillRect(renderer, &rect);
+
 			SDL_Rect otherRect;
 			otherRect.x = WINDOW_WIDTH / 6;
 			otherRect.y = WINDOW_HEIGHT / 6;
@@ -80,12 +84,41 @@ public:
 			otherRect.h = 2 * WINDOW_HEIGHT / 3;
 			SDL_SetRenderDrawColor(renderer, 0xFF, 0x69, 0xB4, 0xFF);
 			SDL_RenderDrawRect(renderer, &otherRect);
-			SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+
 			SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 			SDL_RenderDrawLine(renderer, WINDOW_WIDTH / 3, WINDOW_HEIGHT / 2, 2 * WINDOW_WIDTH / 3, WINDOW_HEIGHT / 2);
 			for (int i = WINDOW_HEIGHT / 3; i <= 2 * WINDOW_HEIGHT / 3; i += WINDOW_HEIGHT / 120) {
 				SDL_RenderDrawPoint(renderer, WINDOW_WIDTH / 2, i);
 			}
+
+			// VIEWPORT
+
+			SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+			SDL_RenderClear(renderer);
+
+			SDL_Rect topLeftViewPort;
+			topLeftViewPort.x = 0;
+			topLeftViewPort.y = 0;
+			topLeftViewPort.w = WINDOW_WIDTH / 2;
+			topLeftViewPort.h = WINDOW_HEIGHT / 2;
+			SDL_RenderSetViewport(renderer, &topLeftViewPort);
+			SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+
+			SDL_Rect topRightViewPort;
+			topRightViewPort.x = WINDOW_WIDTH / 2;
+			topRightViewPort.y = 0;
+			topRightViewPort.w = WINDOW_WIDTH / 2;
+			topRightViewPort.h = WINDOW_HEIGHT / 2;
+			SDL_RenderSetViewport(renderer, &topRightViewPort);
+			SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+
+			SDL_Rect bottomViewPort;
+			bottomViewPort.x = 0;
+			bottomViewPort.y = WINDOW_HEIGHT / 2;
+			bottomViewPort.w = WINDOW_WIDTH;
+			bottomViewPort.h = WINDOW_HEIGHT / 2;
+			SDL_RenderSetViewport(renderer, &bottomViewPort);
+			SDL_RenderCopy(renderer, texture, nullptr, nullptr);
 
 			SDL_RenderPresent(renderer);
 		}
