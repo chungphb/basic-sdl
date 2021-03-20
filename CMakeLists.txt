@@ -22,3 +22,7 @@ target_link_libraries(TestSDL2_image ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
 # Lesson 7, 8, 9
 add_executable(TestTexture "src/TestTexture.cpp")
 target_link_libraries(TestTexture ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
+
+# Lesson 10
+add_executable(TestColorKeying "src/TestColorKeying.cpp")
+target_link_libraries(TestColorKeying ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
