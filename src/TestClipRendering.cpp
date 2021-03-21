@@ -41,13 +41,29 @@ public:
 
 	bool loadMedia() {
 		bool success = true;
-		if (!fooTexture.loadFromFile(renderer, "image/foo.png")) {
-			printf("Failed to load \"foo\" texture image!\n");
+		if (!spriteSheetTexture.loadFromFile(renderer, "image/foos.png")) {
+			printf("Failed to load \"foos\" texture image!\n");
 			success = false;
-		}
-		if (!backgroundTexture.loadFromFile(renderer, "image/background.png")) {
-			printf("Failed to load \"background\" texture image!\n");
-			success = false;
+		} else {
+			clips[0].x = 0;
+			clips[0].y = 0;
+			clips[0].w = 100;
+			clips[0].h = 150;
+
+			clips[1].x = 100;
+			clips[1].y = 0;
+			clips[1].w = 100;
+			clips[1].h = 150;
+
+			clips[2].x = 0;
+			clips[2].y = 150;
+			clips[2].w = 100;
+			clips[2].h = 150;
+
+			clips[3].x = 100;
+			clips[3].y = 150;
+			clips[3].w = 100;
+			clips[3].h = 150;
 		}
 		return success;
 	}
@@ -61,16 +77,18 @@ public:
 					quit = true;
 				}
 			}
+			SDL_SetRenderDrawColor(renderer, 0x59, 0x59, 0x59, 0xFF);
 			SDL_RenderClear(renderer);
-			backgroundTexture.render(renderer, 0, 0);
-			fooTexture.render(renderer, WINDOW_WIDTH / 2 + 40, WINDOW_HEIGHT / 2 + 40);
+			spriteSheetTexture.render(renderer, 80, 200, &clips[0]);
+			spriteSheetTexture.render(renderer, 200, 200, &clips[1]);
+			spriteSheetTexture.render(renderer, 320, 200, &clips[2]);
+			spriteSheetTexture.render(renderer, 440, 200, &clips[3]);
 			SDL_RenderPresent(renderer);
 		}
 	}
 
 	void close() {
-		fooTexture.free();
-		backgroundTexture.free();
+		spriteSheetTexture.free();
 		SDL_DestroyRenderer(renderer);
 		renderer = nullptr;
 		SDL_DestroyWindow(window);
@@ -124,9 +142,13 @@ private:
 			}
 		}
 
-		void render(SDL_Renderer* renderer, int x, int y) {
+		void render(SDL_Renderer* renderer, int x, int y, SDL_Rect* clip = nullptr) {
 			SDL_Rect renderQuad{x, y, width, height};
-			SDL_RenderCopy(renderer, texture, nullptr, &renderQuad);
+			if (clip) {
+				renderQuad.w = clip->w;
+				renderQuad.h = clip->h;
+			}
+			SDL_RenderCopy(renderer, texture, clip, &renderQuad);
 		}
 
 		int getWidth() {
@@ -142,8 +164,8 @@ private:
 		int width;
 		int height;
 	};
-	Texture fooTexture;
-	Texture backgroundTexture;
+	SDL_Rect clips[4];
+	Texture spriteSheetTexture;
 };
 
 

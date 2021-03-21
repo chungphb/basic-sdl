@@ -12,17 +12,21 @@ include_directories(${SDL2_INCLUDE_DIR})
 include_directories(${SDL2_image_INCLUDE_DIR})
 
 # Lesson 1, 2, 3, 4, 5
-add_executable(TestSDL2 "src/TestSDL2.cpp")
-target_link_libraries(TestSDL2 ${SDL2_LIBRARY})
+add_executable(TestBasicSDL2 "src/TestBasicSDL2.cpp")
+target_link_libraries(TestBasicSDL2 ${SDL2_LIBRARY})
 
 # Lesson 6
-add_executable(TestSDL2_image "src/TestSDL2_image.cpp")
-target_link_libraries(TestSDL2_image ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
+add_executable(TestBasicSDL2_image "src/TestBasicSDL2_image.cpp")
+target_link_libraries(TestBasicSDL2_image ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
 
 # Lesson 7, 8, 9
-add_executable(TestTexture "src/TestTexture.cpp")
-target_link_libraries(TestTexture ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
+add_executable(TestBasicRendering "src/TestBasicRendering.cpp")
+target_link_libraries(TestBasicRendering ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
 
 # Lesson 10
 add_executable(TestColorKeying "src/TestColorKeying.cpp")
 target_link_libraries(TestColorKeying ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
+
+# Lesson 11
+add_executable(TestClipRendering "src/TestClipRendering.cpp")
+target_link_libraries(TestClipRendering ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
