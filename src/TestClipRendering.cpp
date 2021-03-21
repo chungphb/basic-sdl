@@ -71,14 +71,46 @@ public:
 	void run() {
 		bool quit = false;
 		SDL_Event e;
+		Uint8 r = 255, g = 255, b = 255;
 		while (!quit) {
 			while (SDL_PollEvent(&e) != 0) {
 				if (e.type == SDL_QUIT) {
 					quit = true;
+				} else if (e.type == SDL_KEYDOWN) {
+					switch (e.key.keysym.sym) {
+						case SDLK_q: {
+							r += 15;
+							break;
+						}
+						case SDLK_w: {
+							g += 15;
+							break;
+						}
+						case SDLK_e: {
+							b += 15;
+							break;
+						}
+						case SDLK_r: {
+							r -= 15;
+							break;
+						}
+						case SDLK_t: {
+							g -= 15;
+							break;
+						}
+						case SDLK_y: {
+							b -= 15;
+							break;
+						}
+						default: {
+							break;
+						}
+					}
 				}
 			}
 			SDL_SetRenderDrawColor(renderer, 0x59, 0x59, 0x59, 0xFF);
 			SDL_RenderClear(renderer);
+			spriteSheetTexture.setColor(r, g, b);
 			spriteSheetTexture.render(renderer, 80, 200, &clips[0]);
 			spriteSheetTexture.render(renderer, 200, 200, &clips[1]);
 			spriteSheetTexture.render(renderer, 320, 200, &clips[2]);
@@ -131,6 +163,10 @@ private:
 			}
 			texture = newTexture;
 			return texture != nullptr;
+		}
+
+		void setColor(Uint8 r, Uint8 g, Uint8 b) {
+			SDL_SetTextureColorMod(texture, r, g, b);
 		}
 
 		void free() {
