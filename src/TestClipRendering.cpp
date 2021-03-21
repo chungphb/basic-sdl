@@ -64,6 +64,12 @@ public:
 			clips[3].y = 150;
 			clips[3].w = 100;
 			clips[3].h = 150;
+
+			spriteSheetTexture.setBlendMode(SDL_BLENDMODE_BLEND);
+		}
+		if (!backgroundTexture.loadFromFile(renderer, "image/background.png")) {
+			printf("Failed to load \"background\" texture image!\n");
+			success = false;
 		}
 		return success;
 	}
@@ -72,6 +78,7 @@ public:
 		bool quit = false;
 		SDL_Event e;
 		Uint8 r = 255, g = 255, b = 255;
+		Uint8 a = 255;
 		while (!quit) {
 			while (SDL_PollEvent(&e) != 0) {
 				if (e.type == SDL_QUIT) {
@@ -102,6 +109,23 @@ public:
 							b -= 15;
 							break;
 						}
+						case SDLK_a: {
+							if (a + 32 > 255) {
+								a = 255;
+							} else {
+								a += 32;
+							}
+							break;
+						}
+						case SDLK_s: {
+							if (a - 32 < 0) {
+								a = 0;
+							}
+							else {
+								a -= 32;
+							}
+							break;
+						}
 						default: {
 							break;
 						}
@@ -110,11 +134,14 @@ public:
 			}
 			SDL_SetRenderDrawColor(renderer, 0x59, 0x59, 0x59, 0xFF);
 			SDL_RenderClear(renderer);
+			backgroundTexture.setColor(r, g, b);
+			backgroundTexture.render(renderer, 0, 0);
 			spriteSheetTexture.setColor(r, g, b);
-			spriteSheetTexture.render(renderer, 80, 200, &clips[0]);
-			spriteSheetTexture.render(renderer, 200, 200, &clips[1]);
-			spriteSheetTexture.render(renderer, 320, 200, &clips[2]);
-			spriteSheetTexture.render(renderer, 440, 200, &clips[3]);
+			spriteSheetTexture.setAlpha(a);
+			spriteSheetTexture.render(renderer, 100, 280, &clips[0]);
+			spriteSheetTexture.render(renderer, 220, 280, &clips[1]);
+			spriteSheetTexture.render(renderer, 340, 278, &clips[2]);
+			spriteSheetTexture.render(renderer, 460, 278, &clips[3]);
 			SDL_RenderPresent(renderer);
 		}
 	}
@@ -169,6 +196,14 @@ private:
 			SDL_SetTextureColorMod(texture, r, g, b);
 		}
 
+		void setBlendMode(SDL_BlendMode blendMode) {
+			SDL_SetTextureBlendMode(texture, blendMode);
+		}
+
+		void setAlpha(Uint8 alpha) {
+			SDL_SetTextureAlphaMod(texture, alpha);
+		}
+
 		void free() {
 			if (texture) {
 				SDL_DestroyTexture(texture);
@@ -202,6 +237,7 @@ private:
 	};
 	SDL_Rect clips[4];
 	Texture spriteSheetTexture;
+	Texture backgroundTexture;
 };
 
 
