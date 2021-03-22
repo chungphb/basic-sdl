@@ -1,6 +1,6 @@
 include(FindPackageHandleStandardArgs)
 
-# Search for SDL2_image in ext/SDL2-2.0.14
+# Search for SDL2_image in ext/SDL2_image-2.0.5
 find_path(SDL2_image_ROOT "include/SDL_image.h" PATHS "${CMAKE_CURRENT_LIST_DIR}/../ext/SDL2_image-2.0.5" NO_DEFAULT_PATH)
 if(SDL2_image_ROOT)
     set(SDL2_image_INCLUDE_DIR "${SDL2_image_ROOT}/include")

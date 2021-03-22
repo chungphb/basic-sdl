@@ -1,5 +1,6 @@
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_ttf.h>
 #include <stdio.h>
 #include <string>
 
@@ -33,6 +34,10 @@ public:
 						printf("SDL2_image could not initialize! Error: %s\n", IMG_GetError());
 						success = false;
 					}
+					if (TTF_Init() == -1) {
+						printf("SDL_ttf could not initialize! Error: %s\n", TTF_GetError());
+						success = false;
+					}
 				}
 			}
 		}
@@ -41,6 +46,7 @@ public:
 
 	bool loadMedia() {
 		bool success = true;
+
 		if (!spriteSheetTexture.loadFromFile(renderer, "image/foos.png")) {
 			printf("Failed to load \"foos\" texture image!\n");
 			success = false;
@@ -75,6 +81,19 @@ public:
 			printf("Failed to load \"background\" texture image!\n");
 			success = false;
 		}
+		
+		font = TTF_OpenFont("font/crackman.ttf", 60);
+		if (!font) {
+			printf("Failed to load \"gasalt\" font! Error: %s\n", TTF_GetError());
+			success = false;
+		} else {
+			SDL_Color textColor{0xE3, 0xA7, 0xC0};
+			if (!textTexture.loadFromRenderedText(renderer, font, "Kitty!", textColor)) {
+				printf("Failed to render text texture!\n");
+				success = false;
+			}
+		}
+
 		return success;
 	}
 
@@ -162,6 +181,7 @@ public:
 			SDL_RenderClear(renderer);
 			backgroundTexture.setColor(r, g, b);
 			backgroundTexture.render(renderer, 0, 0);
+			textTexture.render(renderer, 320, 180);
 			fooTexture.setColor(r, g, b);
 			fooTexture.render(renderer, WINDOW_WIDTH - 100, 10, nullptr, angle, nullptr, flip);
 			spriteSheetTexture.setColor(r, g, b);
@@ -177,11 +197,15 @@ public:
 	void close() {
 		spriteSheetTexture.free();
 		fooTexture.free();
+		textTexture.free();
 		backgroundTexture.free();
+		TTF_CloseFont(font);
+		font = nullptr;
 		SDL_DestroyRenderer(renderer);
 		renderer = nullptr;
 		SDL_DestroyWindow(window);
 		window = nullptr;
+		TTF_Quit();
 		IMG_Quit();
 		SDL_Quit();
 	}
@@ -189,6 +213,7 @@ public:
 private:
 	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
+	TTF_Font* font = nullptr;
 	struct Texture {
 	public:
 		Texture() {
@@ -217,6 +242,26 @@ private:
 					height = loadedSurface->h;
 				}
 				SDL_FreeSurface(loadedSurface);
+			}
+			texture = newTexture;
+			return texture != nullptr;
+		}
+
+		bool loadFromRenderedText(SDL_Renderer* renderer, TTF_Font* font, std::string textureText, SDL_Color textColor) {
+			free();
+			SDL_Texture* newTexture = nullptr;
+			SDL_Surface* textSurface = TTF_RenderText_Solid(font, textureText.c_str(), textColor);
+			if (!textSurface) {
+				printf("Unable to render text surface! Error: %s\n", TTF_GetError());
+			} else {
+				newTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+				if (!newTexture) {
+					printf("Unable to create texture from rendered text! Error: %s\n", SDL_GetError());
+				} else {
+					width = textSurface->w;
+					height = textSurface->h;
+				}
+				SDL_FreeSurface(textSurface);
 			}
 			texture = newTexture;
 			return texture != nullptr;
@@ -268,6 +313,7 @@ private:
 	SDL_Rect clips[4];
 	Texture spriteSheetTexture;
 	Texture fooTexture;
+	Texture textTexture;
 	Texture backgroundTexture;
 };
 
