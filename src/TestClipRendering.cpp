@@ -67,6 +67,10 @@ public:
 
 			spriteSheetTexture.setBlendMode(SDL_BLENDMODE_BLEND);
 		}
+		if (!fooTexture.loadFromFile(renderer, "image/foo2.png")) {
+			printf("Failed to load \"foo2\" texture image!\n");
+			success = false;
+		}
 		if (!backgroundTexture.loadFromFile(renderer, "image/background.png")) {
 			printf("Failed to load \"background\" texture image!\n");
 			success = false;
@@ -79,6 +83,8 @@ public:
 		SDL_Event e;
 		Uint8 r = 255, g = 255, b = 255;
 		Uint8 a = 255;
+		double angle = 0;
+		SDL_RendererFlip flip = SDL_FLIP_NONE;
 		while (!quit) {
 			while (SDL_PollEvent(&e) != 0) {
 				if (e.type == SDL_QUIT) {
@@ -126,6 +132,26 @@ public:
 							}
 							break;
 						}
+						case SDLK_1: {
+							angle += 60;
+							break;
+						}
+						case SDLK_2: {
+							angle -= 60;
+							break;
+						}
+						case SDLK_3: {
+							flip = SDL_FLIP_NONE;
+							break;
+						}
+						case SDLK_4: {
+							flip = SDL_FLIP_HORIZONTAL;
+							break;
+						}
+						case SDLK_5: {
+							flip = SDL_FLIP_VERTICAL;
+							break;
+						}
 						default: {
 							break;
 						}
@@ -136,6 +162,8 @@ public:
 			SDL_RenderClear(renderer);
 			backgroundTexture.setColor(r, g, b);
 			backgroundTexture.render(renderer, 0, 0);
+			fooTexture.setColor(r, g, b);
+			fooTexture.render(renderer, WINDOW_WIDTH - 100, 10, nullptr, angle, nullptr, flip);
 			spriteSheetTexture.setColor(r, g, b);
 			spriteSheetTexture.setAlpha(a);
 			spriteSheetTexture.render(renderer, 100, 280, &clips[0]);
@@ -148,6 +176,8 @@ public:
 
 	void close() {
 		spriteSheetTexture.free();
+		fooTexture.free();
+		backgroundTexture.free();
 		SDL_DestroyRenderer(renderer);
 		renderer = nullptr;
 		SDL_DestroyWindow(window);
@@ -213,13 +243,13 @@ private:
 			}
 		}
 
-		void render(SDL_Renderer* renderer, int x, int y, SDL_Rect* clip = nullptr) {
+		void render(SDL_Renderer* renderer, int x, int y, SDL_Rect* clip = nullptr, double angle = 0.0, SDL_Point* center = nullptr, SDL_RendererFlip flip = SDL_FLIP_NONE) {
 			SDL_Rect renderQuad{x, y, width, height};
 			if (clip) {
 				renderQuad.w = clip->w;
 				renderQuad.h = clip->h;
 			}
-			SDL_RenderCopy(renderer, texture, clip, &renderQuad);
+			SDL_RenderCopyEx(renderer, texture, clip, &renderQuad, angle, center, flip);
 		}
 
 		int getWidth() {
@@ -237,6 +267,7 @@ private:
 	};
 	SDL_Rect clips[4];
 	Texture spriteSheetTexture;
+	Texture fooTexture;
 	Texture backgroundTexture;
 };
 
