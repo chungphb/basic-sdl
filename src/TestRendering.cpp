@@ -7,6 +7,9 @@
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
 
+const int BUTTON_WIDTH = 40;
+const int BUTTON_HEIGHT = 20;
+
 struct MainWindow {
 public:
 	bool init() {
@@ -47,36 +50,26 @@ public:
 	bool loadMedia() {
 		bool success = true;
 
-		if (!spriteSheetTexture.loadFromFile(renderer, "image/foos.png")) {
-			printf("Failed to load \"foos\" texture image!\n");
+		if (!characterSpriteSheetTexture.loadFromFile(renderer, "image/characters.png")) {
+			printf("Failed to load \"characters\" texture image!\n");
 			success = false;
 		} else {
-			clips[0].x = 0;
-			clips[0].y = 0;
-			clips[0].w = 100;
-			clips[0].h = 150;
-
-			clips[1].x = 100;
-			clips[1].y = 0;
-			clips[1].w = 100;
-			clips[1].h = 150;
-
-			clips[2].x = 0;
-			clips[2].y = 150;
-			clips[2].w = 100;
-			clips[2].h = 150;
-
-			clips[3].x = 100;
-			clips[3].y = 150;
-			clips[3].w = 100;
-			clips[3].h = 150;
-
-			spriteSheetTexture.setBlendMode(SDL_BLENDMODE_BLEND);
+			const int WIDTH = 100;
+			const int HEIGHT = 150;
+			for (int i = 0; i < NUM_CHARACTERS; i++) {
+				characterClips[i].x = (i % 2) * WIDTH;
+				characterClips[i].y = (i / 2) * HEIGHT;
+				characterClips[i].w = WIDTH;
+				characterClips[i].h = HEIGHT;
+			}
+			characterSpriteSheetTexture.setBlendMode(SDL_BLENDMODE_BLEND);
 		}
-		if (!fooTexture.loadFromFile(renderer, "image/foo2.png")) {
-			printf("Failed to load \"foo2\" texture image!\n");
+
+		if (!sunTexture.loadFromFile(renderer, "image/sun.png")) {
+			printf("Failed to load \"sun\" texture image!\n");
 			success = false;
 		}
+
 		if (!backgroundTexture.loadFromFile(renderer, "image/background.png")) {
 			printf("Failed to load \"background\" texture image!\n");
 			success = false;
@@ -88,10 +81,29 @@ public:
 			success = false;
 		} else {
 			SDL_Color textColor{0xE3, 0xA7, 0xC0};
-			if (!textTexture.loadFromRenderedText(renderer, font, "Kitty!", textColor)) {
+			if (!nameTexture.loadFromRenderedText(renderer, font, "Kitty!", textColor)) {
 				printf("Failed to render text texture!\n");
 				success = false;
 			}
+		}
+
+		if (!buttonSpriteSheetTexture.loadFromFile(renderer, "image/buttons.png")) {
+			printf("Failed to load \"buttons\" texture image!\n");
+			success = false;
+		}
+		else {
+			const int WIDTH = 40;
+			const int HEIGHT = 20;
+			for (int i = 0; i < NUM_CHARACTERS; i++) {
+				buttonClips[i].x = i * WIDTH;
+				buttonClips[i].y = 0;
+				buttonClips[i].w = WIDTH;
+				buttonClips[i].h = HEIGHT;
+			}
+			buttons[0].setPosition(130, 440);
+			buttons[1].setPosition(250, 440);
+			buttons[2].setPosition(370, 440);
+			buttons[3].setPosition(490, 440);
 		}
 
 		return success;
@@ -175,29 +187,36 @@ public:
 							break;
 						}
 					}
+				} else {
+					for (int i = 0; i < NUM_BUTTONS; i++) {
+						buttons[i].handleEvent(&e);
+					}
 				}
 			}
 			SDL_SetRenderDrawColor(renderer, 0x59, 0x59, 0x59, 0xFF);
 			SDL_RenderClear(renderer);
 			backgroundTexture.setColor(r, g, b);
 			backgroundTexture.render(renderer, 0, 0);
-			textTexture.render(renderer, 320, 180);
-			fooTexture.setColor(r, g, b);
-			fooTexture.render(renderer, WINDOW_WIDTH - 100, 10, nullptr, angle, nullptr, flip);
-			spriteSheetTexture.setColor(r, g, b);
-			spriteSheetTexture.setAlpha(a);
-			spriteSheetTexture.render(renderer, 100, 280, &clips[0]);
-			spriteSheetTexture.render(renderer, 220, 280, &clips[1]);
-			spriteSheetTexture.render(renderer, 340, 278, &clips[2]);
-			spriteSheetTexture.render(renderer, 460, 278, &clips[3]);
+			nameTexture.render(renderer, 320, 180);
+			sunTexture.setColor(r, g, b);
+			sunTexture.render(renderer, WINDOW_WIDTH - 100, 10, nullptr, angle, nullptr, flip);
+			characterSpriteSheetTexture.setColor(r, g, b);
+			characterSpriteSheetTexture.setAlpha(a);
+			characterSpriteSheetTexture.render(renderer, 100, 280, &characterClips[0]);
+			characterSpriteSheetTexture.render(renderer, 220, 280, &characterClips[1]);
+			characterSpriteSheetTexture.render(renderer, 340, 278, &characterClips[2]);
+			characterSpriteSheetTexture.render(renderer, 460, 278, &characterClips[3]);
+			for (int i = 0; i < NUM_BUTTONS; i++) {
+				buttons[i].render(renderer, &buttonSpriteSheetTexture, buttonClips);
+			}
 			SDL_RenderPresent(renderer);
 		}
 	}
 
 	void close() {
-		spriteSheetTexture.free();
-		fooTexture.free();
-		textTexture.free();
+		characterSpriteSheetTexture.free();
+		sunTexture.free();
+		nameTexture.free();
 		backgroundTexture.free();
 		TTF_CloseFont(font);
 		font = nullptr;
@@ -211,9 +230,13 @@ public:
 	}
 
 private:
+	static constexpr int NUM_CHARACTERS = 4;
+	static constexpr int NUM_BUTTONS = 4;
+
 	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
 	TTF_Font* font = nullptr;
+
 	struct Texture {
 	public:
 		Texture() {
@@ -310,11 +333,85 @@ private:
 		int width;
 		int height;
 	};
-	SDL_Rect clips[4];
-	Texture spriteSheetTexture;
-	Texture fooTexture;
-	Texture textTexture;
+
+	SDL_Rect characterClips[NUM_CHARACTERS];
+	Texture characterSpriteSheetTexture;
+	Texture sunTexture;
+	Texture nameTexture;
 	Texture backgroundTexture;
+
+	enum ButtonSprite {
+		BUTTON_SPRITE_MOUSE_OUT = 0,
+		BUTTON_SPRITE_MOUSE_OVER_MOTION = 1,
+		BUTTON_SPRITE_MOUSE_DOWN = 2,
+		BUTTON_SPRITE_MOUSE_UP = 3,
+		BUTTON_SPRITE_TOTAL = 4
+	};
+
+	struct Button {
+	public:
+		Button() {
+			position.x = 0;
+			position.y = 0;
+			currentSprite = BUTTON_SPRITE_MOUSE_OUT;
+		}
+
+		void setPosition(int x, int y) {
+			position.x = x;
+			position.y = y;
+		}
+
+		void handleEvent(SDL_Event* e) {
+			if (e->type == SDL_MOUSEMOTION || e->type == SDL_MOUSEBUTTONDOWN || e->type == SDL_MOUSEBUTTONUP) {
+				int x, y;
+				SDL_GetMouseState(&x, &y);
+				bool inside = true;
+				if (x < position.x) {
+					inside = false;
+				} else if (x > position.x + BUTTON_WIDTH) {
+					inside = false;
+				} else if (y < position.y) {
+					inside = false;
+				} else if (y > position.y + BUTTON_HEIGHT) {
+					inside = false;
+				}
+				if (!inside) {
+					currentSprite = BUTTON_SPRITE_MOUSE_OUT;
+				}
+				else {
+					switch (e->type) {
+						case SDL_MOUSEMOTION: {
+							currentSprite = BUTTON_SPRITE_MOUSE_OVER_MOTION;
+							break;
+						}
+						case SDL_MOUSEBUTTONDOWN: {
+							currentSprite = BUTTON_SPRITE_MOUSE_DOWN;
+							break;
+						}
+						case SDL_MOUSEBUTTONUP: {
+							currentSprite = BUTTON_SPRITE_MOUSE_UP;
+							break;
+						}
+						default: {
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		void render(SDL_Renderer* renderer, Texture* buttonSpriteSheetTexture, SDL_Rect* buttonClips) {
+			buttonSpriteSheetTexture->render(renderer, position.x, position.y, &buttonClips[currentSprite]);
+		}
+
+	private:
+		SDL_Point position;
+		ButtonSprite currentSprite;
+	};
+
+	Button buttons[NUM_BUTTONS];
+	SDL_Rect buttonClips[NUM_BUTTONS];
+	Texture buttonSpriteSheetTexture;
 };
 
 

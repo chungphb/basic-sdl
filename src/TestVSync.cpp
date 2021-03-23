@@ -41,8 +41,8 @@ public:
 
 	bool loadMedia() {
 		bool success = true;
-		if (!spriteSheetTexture.loadFromFile(renderer, "image/foos2.png")) {
-			printf("Failed to load \"foos\" texture image!\n");
+		if (!spriteSheetTexture.loadFromFile(renderer, "image/animated_character.png")) {
+			printf("Failed to load \"animated_character\" texture image!\n");
 			success = false;
 		} else {
 			spriteClips[0].x = 0;

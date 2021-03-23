@@ -41,7 +41,7 @@ public:
 
 	bool loadMedia() {
 		bool success = true;
-		texture = loadTexture("image/1.PNG");
+		texture = loadTexture("image/landscape.png");
 		if (!texture) {
 			printf("Failed to load texture image!\n");
 			success = false;

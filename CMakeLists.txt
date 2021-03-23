@@ -29,7 +29,7 @@ target_link_libraries(TestBasicRendering ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
 add_executable(TestColorKeying "src/TestColorKeying.cpp")
 target_link_libraries(TestColorKeying ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
 
-# Lesson 11, 12, 13, 15, 16
+# Lesson 11, 12, 13, 15, 16, 17
 add_executable(TestRendering "src/TestRendering.cpp")
 target_link_libraries(TestRendering ${SDL2_LIBRARY} ${SDL2_image_LIBRARY} ${SDL2_ttf_LIBRARY})
 

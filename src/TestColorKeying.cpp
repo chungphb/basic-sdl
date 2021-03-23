@@ -41,8 +41,8 @@ public:
 
 	bool loadMedia() {
 		bool success = true;
-		if (!fooTexture.loadFromFile(renderer, "image/foo.png")) {
-			printf("Failed to load \"foo\" texture image!\n");
+		if (!characterTexture.loadFromFile(renderer, "image/character.png")) {
+			printf("Failed to load \"character\" texture image!\n");
 			success = false;
 		}
 		if (!backgroundTexture.loadFromFile(renderer, "image/background.png")) {
@@ -63,13 +63,13 @@ public:
 			}
 			SDL_RenderClear(renderer);
 			backgroundTexture.render(renderer, 0, 0);
-			fooTexture.render(renderer, WINDOW_WIDTH / 2 + 40, WINDOW_HEIGHT / 2 + 40);
+			characterTexture.render(renderer, WINDOW_WIDTH / 2 + 40, WINDOW_HEIGHT / 2 + 40);
 			SDL_RenderPresent(renderer);
 		}
 	}
 
 	void close() {
-		fooTexture.free();
+		characterTexture.free();
 		backgroundTexture.free();
 		SDL_DestroyRenderer(renderer);
 		renderer = nullptr;
@@ -142,7 +142,7 @@ private:
 		int width;
 		int height;
 	};
-	Texture fooTexture;
+	Texture characterTexture;
 	Texture backgroundTexture;
 };
 

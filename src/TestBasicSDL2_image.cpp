@@ -33,7 +33,7 @@ public:
 
 	bool loadMedia() {
 		bool success = true;
-		pngSurface = loadSurface("image/1.PNG");
+		pngSurface = loadSurface("image/landscape.png");
 		if (!pngSurface) {
 			printf("Failed to load PNG image!\n");
 			success = false;
