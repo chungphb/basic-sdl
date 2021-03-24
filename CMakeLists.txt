@@ -33,6 +33,6 @@ target_link_libraries(TestColorKeying ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
 add_executable(TestRendering "src/TestRendering.cpp")
 target_link_libraries(TestRendering ${SDL2_LIBRARY} ${SDL2_image_LIBRARY} ${SDL2_ttf_LIBRARY})
 
-# Lesson 14
-add_executable(TestVSync "src/TestVSync.cpp")
-target_link_libraries(TestVSync ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
+# Lesson 14, 18
+add_executable(TestRenderingEx "src/TestRenderingEx.cpp")
+target_link_libraries(TestRenderingEx ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})

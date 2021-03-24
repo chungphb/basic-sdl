@@ -17,7 +17,7 @@ public:
 			if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
 				printf("Warning: Linear texture filtering is not enabled!");
 			}
-			window = SDL_CreateWindow("Hello world!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+			window = SDL_CreateWindow("Kitty world!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 			if (!window) {
 				printf("Window could not be created! Error: %s\n", SDL_GetError());
 				success = false;
@@ -41,34 +41,46 @@ public:
 
 	bool loadMedia() {
 		bool success = true;
+
 		if (!spriteSheetTexture.loadFromFile(renderer, "image/animated_character.png")) {
 			printf("Failed to load \"animated_character\" texture image!\n");
 			success = false;
 		} else {
-			spriteClips[0].x = 0;
-			spriteClips[0].y = 0;
-			spriteClips[0].w = 104;
-			spriteClips[0].h = 147;
-
-			spriteClips[1].x = 104;
-			spriteClips[1].y = 0;
-			spriteClips[1].w = 104;
-			spriteClips[1].h = 147;
-
-			spriteClips[2].x = 208;
-			spriteClips[2].y = 0;
-			spriteClips[2].w = 104;
-			spriteClips[2].h = 147;
-
-			spriteClips[3].x = 312;
-			spriteClips[3].y = 0;
-			spriteClips[3].w = 104;
-			spriteClips[3].h = 147;
+			const int WIDTH = 104;
+			const int HEIGHT = 147;
+			for (int i = 0; i < NUM_FRAMES; i++) {
+				spriteClips[i].x = i * WIDTH;
+				spriteClips[i].y = 0;
+				spriteClips[i].w = 104;
+				spriteClips[i].h = 147;
+			}
 		}
+
 		if (!backgroundTexture.loadFromFile(renderer, "image/background.png")) {
 			printf("Failed to load \"background\" texture image!\n");
 			success = false;
 		}
+
+		if (!upBackgroundTexture.loadFromFile(renderer, "image/up_background.png")) {
+			printf("Failed to load \"up_background\" texture image!\n");
+			success = false;
+		}
+
+		if (!downBackgroundTexture.loadFromFile(renderer, "image/down_background.png")) {
+			printf("Failed to load \"down_background\" texture image!\n");
+			success = false;
+		}
+
+		if (!leftBackgroundTexture.loadFromFile(renderer, "image/left_background.png")) {
+			printf("Failed to load \"left_background\" texture image!\n");
+			success = false;
+		}
+
+		if (!rightBackgroundTexture.loadFromFile(renderer, "image/right_background.png")) {
+			printf("Failed to load \"right_background\" texture image!\n");
+			success = false;
+		}
+
 		return success;
 	}
 
@@ -76,15 +88,28 @@ public:
 		bool quit = false;
 		SDL_Event e;
 		int frame = 0;
+		Texture* currentBackgroundTexture = nullptr;
 		while (!quit) {
 			while (SDL_PollEvent(&e) != 0) {
 				if (e.type == SDL_QUIT) {
 					quit = true;
 				}
 			}
+			const Uint8* currentKeyStates = SDL_GetKeyboardState(nullptr);
+			if (currentKeyStates[SDL_SCANCODE_UP]) {
+				currentBackgroundTexture = &upBackgroundTexture;
+			} else if (currentKeyStates[SDL_SCANCODE_DOWN]) {
+				currentBackgroundTexture = &downBackgroundTexture;
+			} else if (currentKeyStates[SDL_SCANCODE_LEFT]) {
+				currentBackgroundTexture = &leftBackgroundTexture;
+			} else if (currentKeyStates[SDL_SCANCODE_RIGHT]) {
+				currentBackgroundTexture = &rightBackgroundTexture;
+			} else {
+				currentBackgroundTexture = &backgroundTexture;
+			}
 			SDL_SetRenderDrawColor(renderer, 0x59, 0x59, 0x59, 0xFF);
 			SDL_RenderClear(renderer);
-			backgroundTexture.render(renderer, 0, 0);
+			currentBackgroundTexture->render(renderer, 0, 0);
 			spriteSheetTexture.render(renderer, 360, 280, &spriteClips[frame / 300]);
 			frame++;
 			if (frame / 300 >= NUM_FRAMES) {
@@ -96,6 +121,7 @@ public:
 
 	void close() {
 		spriteSheetTexture.free();
+		backgroundTexture.free();
 		SDL_DestroyRenderer(renderer);
 		renderer = nullptr;
 		SDL_DestroyWindow(window);
@@ -105,8 +131,11 @@ public:
 	}
 
 private:
+	static constexpr int NUM_FRAMES = 4;
+
 	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
+
 	struct Texture {
 	public:
 		Texture() {
@@ -144,6 +173,14 @@ private:
 			SDL_SetTextureColorMod(texture, r, g, b);
 		}
 
+		void setBlendMode(SDL_BlendMode blendMode) {
+			SDL_SetTextureBlendMode(texture, blendMode);
+		}
+
+		void setAlpha(Uint8 alpha) {
+			SDL_SetTextureAlphaMod(texture, alpha);
+		}
+
 		void free() {
 			if (texture) {
 				SDL_DestroyTexture(texture);
@@ -153,13 +190,13 @@ private:
 			}
 		}
 
-		void render(SDL_Renderer* renderer, int x, int y, SDL_Rect* clip = nullptr) {
+		void render(SDL_Renderer* renderer, int x, int y, SDL_Rect* clip = nullptr, double angle = 0.0, SDL_Point* center = nullptr, SDL_RendererFlip flip = SDL_FLIP_NONE) {
 			SDL_Rect renderQuad{x, y, width, height};
 			if (clip) {
 				renderQuad.w = clip->w;
 				renderQuad.h = clip->h;
 			}
-			SDL_RenderCopy(renderer, texture, clip, &renderQuad);
+			SDL_RenderCopyEx(renderer, texture, clip, &renderQuad, angle, center, flip);
 		}
 
 		int getWidth() {
@@ -175,10 +212,14 @@ private:
 		int width;
 		int height;
 	};
-	static constexpr int NUM_FRAMES = 4;
+
 	SDL_Rect spriteClips[NUM_FRAMES];
 	Texture spriteSheetTexture;
 	Texture backgroundTexture;
+	Texture upBackgroundTexture;
+	Texture downBackgroundTexture;
+	Texture leftBackgroundTexture;
+	Texture rightBackgroundTexture;
 };
 
 
