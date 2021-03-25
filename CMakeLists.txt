@@ -36,3 +36,7 @@ target_link_libraries(TestRendering ${SDL2_LIBRARY} ${SDL2_image_LIBRARY} ${SDL2
 # Lesson 14, 18
 add_executable(TestRenderingEx "src/TestRenderingEx.cpp")
 target_link_libraries(TestRenderingEx ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
+
+# Lesson 19
+add_executable(TestJoystick "src/TestJoystick.cpp")
+target_link_libraries(TestJoystick ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})

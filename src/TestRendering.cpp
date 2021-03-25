@@ -90,8 +90,7 @@ public:
 		if (!buttonSpriteSheetTexture.loadFromFile(renderer, "image/buttons.png")) {
 			printf("Failed to load \"buttons\" texture image!\n");
 			success = false;
-		}
-		else {
+		} else {
 			const int WIDTH = 40;
 			const int HEIGHT = 20;
 			for (int i = 0; i < NUM_CHARACTERS; i++) {
@@ -377,8 +376,7 @@ private:
 				}
 				if (!inside) {
 					currentSprite = BUTTON_SPRITE_MOUSE_OUT;
-				}
-				else {
+				} else {
 					switch (e->type) {
 						case SDL_MOUSEMOTION: {
 							currentSprite = BUTTON_SPRITE_MOUSE_OVER_MOTION;
