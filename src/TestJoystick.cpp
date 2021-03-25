@@ -12,7 +12,7 @@ struct MainWindow {
 public:
 	bool init() {
 		bool success = true;
-		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0) {
+		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC) < 0) {
 			printf("SDL could not initialize! Error: %s\n", SDL_GetError());
 			success = false;
 		} else {
@@ -26,6 +26,15 @@ public:
 				gameController = SDL_JoystickOpen(0);
 				if (!gameController) {
 					printf("Warning: Unable to open game controller! Error: %s\n", SDL_GetError());
+				} else {
+					controllerHaptic = SDL_HapticOpenFromJoystick(gameController);
+					if (!controllerHaptic) {
+						printf("Warning: Controller does not support haptics! Error: %s\n", SDL_GetError());
+					} else {
+						if (!SDL_HapticRumbleInit(controllerHaptic)) {
+							printf("Warning: Unable to initialize rumble! Error: %s\n", SDL_GetError());
+						}
+					}
 				}
 			}
 
@@ -96,6 +105,10 @@ public:
 							}
 						}
 					}
+				} else if (e.type == SDL_JOYBUTTONDOWN) {
+					if (!SDL_HapticRumblePlay(controllerHaptic, 0.75, 500)) {
+						printf("Warning: Unable to play rumble! Error: %s\n", SDL_GetError());
+					}
 				}
 			}
 			SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -115,6 +128,8 @@ public:
 		characterTexture.free();
 		sunTexture.free();
 		backgroundTexture.free();
+		SDL_HapticClose(controllerHaptic);
+		controllerHaptic = nullptr;
 		SDL_JoystickClose(gameController);
 		gameController = nullptr;
 		SDL_DestroyRenderer(renderer);
@@ -198,6 +213,7 @@ private:
 	Texture backgroundTexture;
 
 	SDL_Joystick* gameController = nullptr;
+	SDL_Haptic* controllerHaptic = nullptr;
 };
 
 
