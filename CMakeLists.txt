@@ -8,10 +8,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 find_package(SDL2 REQUIRED COMPONENTS main)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2_ttf REQUIRED)
+find_package(SDL2_mixer REQUIRED)
 
 include_directories(${SDL2_INCLUDE_DIR})
 include_directories(${SDL2_image_INCLUDE_DIR})
 include_directories(${SDL2_ttf_INCLUDE_DIR})
+include_directories(${SDL2_mixer_INCLUDE_DIR})
 
 # Lesson 1, 2, 3, 4, 5
 add_executable(TestBasicSDL2 "src/TestBasicSDL2.cpp")
@@ -26,8 +28,8 @@ add_executable(TestBasicRendering "src/TestBasicRendering.cpp")
 target_link_libraries(TestBasicRendering ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
 
 # Lesson 10
-add_executable(TestColorKeying "src/TestColorKeying.cpp")
-target_link_libraries(TestColorKeying ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
+add_executable(TestBasicRenderingEx "src/TestBasicRenderingEx.cpp")
+target_link_libraries(TestBasicRenderingEx ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
 
 # Lesson 11, 12, 13, 15, 16, 17
 add_executable(TestRendering "src/TestRendering.cpp")
@@ -38,5 +40,9 @@ add_executable(TestRenderingEx "src/TestRenderingEx.cpp")
 target_link_libraries(TestRenderingEx ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
 
 # Lesson 19, 20
-add_executable(TestJoystick "src/TestJoystick.cpp")
-target_link_libraries(TestJoystick ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
+add_executable(TestController "src/TestController.cpp")
+target_link_libraries(TestController ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
+
+# Lesson 21
+add_executable(TestSound "src/TestSound.cpp")
+target_link_libraries(TestSound ${SDL2_LIBRARY} ${SDL2_image_LIBRARY} ${SDL2_mixer_LIBRARY})
