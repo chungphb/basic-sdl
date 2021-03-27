@@ -46,3 +46,7 @@ target_link_libraries(TestController ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
 # Lesson 21
 add_executable(TestSound "src/TestSound.cpp")
 target_link_libraries(TestSound ${SDL2_LIBRARY} ${SDL2_image_LIBRARY} ${SDL2_mixer_LIBRARY})
+
+# Lesson 22
+add_executable(TestTiming "src/TestTiming.cpp")
+target_link_libraries(TestTiming ${SDL2_LIBRARY} ${SDL2_image_LIBRARY} ${SDL2_ttf_LIBRARY})
