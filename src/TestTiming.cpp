@@ -82,19 +82,35 @@ public:
 	void run() {
 		bool quit = false;
 		SDL_Event e;
-		Uint32 startTime = 0;
+		Timer timer;
 		std::stringstream timeText;
 		while (!quit) {
 			while (SDL_PollEvent(&e) != 0) {
 				if (e.type == SDL_QUIT) {
 					quit = true;
-				} else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN) {
-					startTime = SDL_GetTicks();
+				} else if (e.type == SDL_KEYDOWN) {
+					switch (e.key.keysym.sym) {
+						case SDLK_s: {
+							if (timer.isStarted()) {
+								timer.stop();
+							} else {
+								timer.start();
+							}
+							break;
+						}
+						case SDLK_p: {
+							if (timer.isPaused()) {
+								timer.unpause();
+							} else {
+								timer.pause();
+							}
+						}
+					}
 				}
 			}
 
 			timeText.str("");
-			timeText << "Time: " << SDL_GetTicks() - startTime << "ms";
+			timeText << "Time: " << timer.getTicks() / 1000. << " s";
 			if (!timeTexture.loadFromRenderedText(renderer, timeFont, timeText.str(), SDL_Color{0xEF, 0x81, 0x96})) {
 				printf("Failed to render time texture!\n");
 			}
@@ -226,6 +242,72 @@ private:
 	Texture backgroundTexture;
 	Texture nameTexture;
 	Texture timeTexture;
+
+	struct Timer {
+	public:
+		Timer() {
+			startTicks = 0;
+			pausedTicks = 0;
+			started = false;
+			paused = false;
+		}
+
+		void start() {
+			startTicks = SDL_GetTicks();
+			pausedTicks = 0;
+			started = true;
+			paused = false;
+		}
+
+		void stop() {
+			startTicks = 0;
+			pausedTicks = 0;
+			started = false;
+			paused = false;
+		}
+
+		void pause() {
+			if (started && !paused) {
+				startTicks = 0;
+				pausedTicks = SDL_GetTicks() - startTicks;
+				paused = true;
+			}
+		}
+
+		void unpause() {
+			if (started && paused) {
+				startTicks = SDL_GetTicks() - pausedTicks;
+				pausedTicks = 0;
+				paused = false;
+			}
+		}
+
+		Uint32 getTicks() {
+			Uint32 time = 0;
+			if (started) {
+				if (paused) {
+					time = pausedTicks;
+				} else {
+					time = SDL_GetTicks() - startTicks;
+				}
+			}
+			return time;
+		}
+
+		bool isStarted() {
+			return started;
+		}
+
+		bool isPaused() {
+			return started && paused;
+		}
+
+	private:
+		Uint32 startTicks;
+		Uint32 pausedTicks;
+		bool started;
+		bool paused;
+	};
 };
 
 
