@@ -1,4 +1,4 @@
-#include <SDL.h>
+#include <core/Window.h>
 #include <SDL_image.h>
 #include <stdio.h>
 #include <string>
@@ -6,9 +6,9 @@
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
 
-struct MainWindow {
+struct TestBasicSDL2Image : public Window {
 public:
-	bool init() {
+	bool init() override {
 		bool success = true;
 		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 			printf("SDL could not initialize! Error: %s\n", SDL_GetError());
@@ -31,7 +31,7 @@ public:
 		return success;
 	}
 
-	bool loadMedia() {
+	bool loadMedia() override {
 		bool success = true;
 		pngSurface = loadSurface("image/landscape.png");
 		if (!pngSurface) {
@@ -41,7 +41,7 @@ public:
 		return success;
 	}
 
-	void run() {
+	void run() override {
 		bool quit = false;
 		SDL_Event e;
 		while (!quit) {
@@ -55,7 +55,7 @@ public:
 		}
 	}
 
-	void close() {
+	void close() override {
 		SDL_FreeSurface(pngSurface);
 		pngSurface = nullptr;
 		SDL_DestroyWindow(window);
@@ -81,14 +81,13 @@ public:
 	}
 
 private:
-	SDL_Window* window = nullptr;
 	SDL_Surface* screenSurface = nullptr;
 	SDL_Surface* pngSurface = nullptr;
 };
 
 
 int main(int argc, char** argv) {
-	MainWindow mainWindow;
+	TestBasicSDL2Image mainWindow;
 	if (!mainWindow.init()) {
 		printf("Failed to initialize!\n");
 	} else {

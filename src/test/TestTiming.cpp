@@ -1,14 +1,16 @@
-#include <SDL.h>
-#include <SDL_image.h>
+#include <core/Window.h>
+#include <core/Texture.h>
+#include <core/Timer.h>
 #include <stdio.h>
-#include <string>
+#include <sstream>
+#include <iomanip>
 
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
 
-struct MainWindow {
+struct TestTiming : public Window {
 public:
-	bool init() {
+	bool init() override {
 		bool success = true;
 		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 			printf("SDL could not initialize! Error: %s\n", SDL_GetError());
@@ -33,42 +35,97 @@ public:
 						printf("SDL2_image could not initialize! Error: %s\n", IMG_GetError());
 						success = false;
 					}
+					if (TTF_Init() == -1) {
+						printf("SDL_ttf could not initialize! Error: %s\n", TTF_GetError());
+						success = false;
+					}
 				}
 			}
 		}
 		return success;
 	}
 
-	bool loadMedia() {
+	bool loadMedia() override {
 		bool success = true;
+
 		if (!characterTexture.loadFromFile(renderer, "image/character.png")) {
 			printf("Failed to load \"character\" texture image!\n");
 			success = false;
 		}
+
 		if (!backgroundTexture.loadFromFile(renderer, "image/background.png")) {
 			printf("Failed to load \"background\" texture image!\n");
 			success = false;
 		}
+
+		titleFont = TTF_OpenFont("font/crackman.ttf", 60);
+		if (!titleFont) {
+			printf("Failed to load \"gasalt\" font! Error: %s\n", TTF_GetError());
+			success = false;
+		} else {
+			SDL_Color textColor{0xEF, 0x81, 0x96};
+			if (!nameTexture.loadFromRenderedText(renderer, titleFont, "Kitty!", textColor)) {
+				printf("Failed to render text texture!\n");
+				success = false;
+			}
+		}
+
+		timeFont = TTF_OpenFont("font/pixeboy.ttf", 32);
+		if (!timeFont) {
+			printf("Failed to load \"pixeboy\" font! Error: %s\n", TTF_GetError());
+			success = false;
+		}
+		
 		return success;
 	}
 
-	void run() {
+	void run() override {
 		bool quit = false;
 		SDL_Event e;
+		Timer timer;
+		std::stringstream timeText;
 		while (!quit) {
 			while (SDL_PollEvent(&e) != 0) {
 				if (e.type == SDL_QUIT) {
 					quit = true;
+				} else if (e.type == SDL_KEYDOWN) {
+					switch (e.key.keysym.sym) {
+						case SDLK_s: {
+							if (timer.isStarted()) {
+								timer.stop();
+							} else {
+								timer.start();
+							}
+							break;
+						}
+						case SDLK_p: {
+							if (timer.isPaused()) {
+								timer.unpause();
+							} else {
+								timer.pause();
+							}
+						}
+					}
 				}
 			}
+
+			timeText.str("");
+			timeText << std::fixed << std::setprecision(2);
+			timeText << "Time: " << std::setw(7) << timer.getTicks() / 1000.;
+			if (!timeTexture.loadFromRenderedText(renderer, timeFont, timeText.str(), SDL_Color{0xEF, 0x81, 0x96})) {
+				printf("Failed to render time texture!\n");
+			}
+
 			SDL_RenderClear(renderer);
 			backgroundTexture.render(renderer, 0, 0);
+			nameTexture.render(renderer, 320, 180);
+			timeTexture.render(renderer, WINDOW_WIDTH - 180, 20);
 			characterTexture.render(renderer, WINDOW_WIDTH / 2 + 40, WINDOW_HEIGHT / 2 + 40);
 			SDL_RenderPresent(renderer);
 		}
 	}
 
-	void close() {
+	void close() override {
 		characterTexture.free();
 		backgroundTexture.free();
 		SDL_DestroyRenderer(renderer);
@@ -80,75 +137,18 @@ public:
 	}
 
 private:
-	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
-	struct Texture {
-	public:
-		Texture() {
-			texture = nullptr;
-			width = 0;
-			height = 0;
-		}
-
-		~Texture() {
-			free();
-		}
-
-		bool loadFromFile(SDL_Renderer* renderer, std::string path) {
-			free();
-			SDL_Texture* newTexture = nullptr;
-			SDL_Surface* loadedSurface = IMG_Load(path.c_str());
-			if (!loadedSurface) {
-				printf("Unable to load image %s! Error: %s\n", path.c_str(), IMG_GetError());
-			} else {
-				SDL_SetColorKey(loadedSurface, true, SDL_MapRGB(loadedSurface->format, 0x00, 0xFF, 0xFF));
-				newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
-				if (!newTexture) {
-					printf("Unable to create texture from %s! Error: %s\n", path.c_str(), SDL_GetError());
-				} else {
-					width = loadedSurface->w;
-					height = loadedSurface->h;
-				}
-				SDL_FreeSurface(loadedSurface);
-			}
-			texture = newTexture;
-			return texture != nullptr;
-		}
-
-		void free() {
-			if (texture) {
-				SDL_DestroyTexture(texture);
-				texture = nullptr;
-				width = 0;
-				height = 0;
-			}
-		}
-
-		void render(SDL_Renderer* renderer, int x, int y) {
-			SDL_Rect renderQuad{x, y, width, height};
-			SDL_RenderCopy(renderer, texture, nullptr, &renderQuad);
-		}
-
-		int getWidth() {
-			return width;
-		}
-
-		int getHeight() {
-			return height;
-		}
-
-	private:
-		SDL_Texture* texture;
-		int width;
-		int height;
-	};
+	TTF_Font* titleFont = nullptr;
+	TTF_Font* timeFont = nullptr;
 	Texture characterTexture;
 	Texture backgroundTexture;
+	Texture nameTexture;
+	Texture timeTexture;
 };
 
 
 int main(int argc, char** argv) {
-	MainWindow mainWindow;
+	TestTiming mainWindow;
 	if (!mainWindow.init()) {
 		printf("Failed to initialize!\n");
 	} else {

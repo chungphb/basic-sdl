@@ -1,8 +1,7 @@
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
+#include <core/Window.h>
+#include <core/Texture.h>
+#include <core/Button.h>
 #include <stdio.h>
-#include <string>
 
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
@@ -10,9 +9,9 @@ const int WINDOW_HEIGHT = 480;
 const int BUTTON_WIDTH = 40;
 const int BUTTON_HEIGHT = 20;
 
-struct MainWindow {
+struct TestRendering : public Window {
 public:
-	bool init() {
+	bool init() override {
 		bool success = true;
 		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 			printf("SDL could not initialize! Error: %s\n", SDL_GetError());
@@ -47,7 +46,7 @@ public:
 		return success;
 	}
 
-	bool loadMedia() {
+	bool loadMedia() override {
 		bool success = true;
 
 		if (!characterSpriteSheetTexture.loadFromFile(renderer, "image/characters.png")) {
@@ -93,22 +92,22 @@ public:
 		} else {
 			const int WIDTH = 40;
 			const int HEIGHT = 20;
-			for (int i = 0; i < NUM_CHARACTERS; i++) {
+			for (int i = 0; i < NUM_BUTTONS; i++) {
 				buttonClips[i].x = i * WIDTH;
 				buttonClips[i].y = 0;
 				buttonClips[i].w = WIDTH;
 				buttonClips[i].h = HEIGHT;
 			}
-			buttons[0].setPosition(130, 440);
-			buttons[1].setPosition(250, 440);
-			buttons[2].setPosition(370, 440);
-			buttons[3].setPosition(490, 440);
+			for (int i = 0; i < NUM_BUTTONS; i++) {
+				buttons[i].setSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+				buttons[i].setPosition(130 + i * 120, 440);
+			}
 		}
 
 		return success;
 	}
 
-	void run() {
+	void run() override {
 		bool quit = false;
 		SDL_Event e;
 		Uint8 r = 255, g = 255, b = 255;
@@ -212,7 +211,7 @@ public:
 		}
 	}
 
-	void close() {
+	void close() override {
 		characterSpriteSheetTexture.free();
 		sunTexture.free();
 		nameTexture.free();
@@ -232,106 +231,8 @@ private:
 	static constexpr int NUM_CHARACTERS = 4;
 	static constexpr int NUM_BUTTONS = 4;
 
-	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
 	TTF_Font* font = nullptr;
-
-	struct Texture {
-	public:
-		Texture() {
-			texture = nullptr;
-			width = 0;
-			height = 0;
-		}
-
-		~Texture() {
-			free();
-		}
-
-		bool loadFromFile(SDL_Renderer* renderer, std::string path) {
-			free();
-			SDL_Texture* newTexture = nullptr;
-			SDL_Surface* loadedSurface = IMG_Load(path.c_str());
-			if (!loadedSurface) {
-				printf("Unable to load image %s! Error: %s\n", path.c_str(), IMG_GetError());
-			} else {
-				SDL_SetColorKey(loadedSurface, true, SDL_MapRGB(loadedSurface->format, 0x00, 0xFF, 0xFF));
-				newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
-				if (!newTexture) {
-					printf("Unable to create texture from %s! Error: %s\n", path.c_str(), SDL_GetError());
-				} else {
-					width = loadedSurface->w;
-					height = loadedSurface->h;
-				}
-				SDL_FreeSurface(loadedSurface);
-			}
-			texture = newTexture;
-			return texture != nullptr;
-		}
-
-		bool loadFromRenderedText(SDL_Renderer* renderer, TTF_Font* font, std::string textureText, SDL_Color textColor) {
-			free();
-			SDL_Texture* newTexture = nullptr;
-			SDL_Surface* textSurface = TTF_RenderText_Solid(font, textureText.c_str(), textColor);
-			if (!textSurface) {
-				printf("Unable to render text surface! Error: %s\n", TTF_GetError());
-			} else {
-				newTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-				if (!newTexture) {
-					printf("Unable to create texture from rendered text! Error: %s\n", SDL_GetError());
-				} else {
-					width = textSurface->w;
-					height = textSurface->h;
-				}
-				SDL_FreeSurface(textSurface);
-			}
-			texture = newTexture;
-			return texture != nullptr;
-		}
-
-		void setColor(Uint8 r, Uint8 g, Uint8 b) {
-			SDL_SetTextureColorMod(texture, r, g, b);
-		}
-
-		void setBlendMode(SDL_BlendMode blendMode) {
-			SDL_SetTextureBlendMode(texture, blendMode);
-		}
-
-		void setAlpha(Uint8 alpha) {
-			SDL_SetTextureAlphaMod(texture, alpha);
-		}
-
-		void free() {
-			if (texture) {
-				SDL_DestroyTexture(texture);
-				texture = nullptr;
-				width = 0;
-				height = 0;
-			}
-		}
-
-		void render(SDL_Renderer* renderer, int x, int y, SDL_Rect* clip = nullptr, double angle = 0.0, SDL_Point* center = nullptr, SDL_RendererFlip flip = SDL_FLIP_NONE) {
-			SDL_Rect renderQuad{x, y, width, height};
-			if (clip) {
-				renderQuad.w = clip->w;
-				renderQuad.h = clip->h;
-			}
-			SDL_RenderCopyEx(renderer, texture, clip, &renderQuad, angle, center, flip);
-		}
-
-		int getWidth() {
-			return width;
-		}
-
-		int getHeight() {
-			return height;
-		}
-
-	private:
-		SDL_Texture* texture;
-		int width;
-		int height;
-	};
 
 	SDL_Rect characterClips[NUM_CHARACTERS];
 	Texture characterSpriteSheetTexture;
@@ -339,82 +240,14 @@ private:
 	Texture nameTexture;
 	Texture backgroundTexture;
 
-	enum ButtonSprite {
-		BUTTON_SPRITE_MOUSE_OUT = 0,
-		BUTTON_SPRITE_MOUSE_OVER_MOTION = 1,
-		BUTTON_SPRITE_MOUSE_DOWN = 2,
-		BUTTON_SPRITE_MOUSE_UP = 3,
-		BUTTON_SPRITE_TOTAL = 4
-	};
-
-	struct Button {
-	public:
-		Button() {
-			position.x = 0;
-			position.y = 0;
-			currentSprite = BUTTON_SPRITE_MOUSE_OUT;
-		}
-
-		void setPosition(int x, int y) {
-			position.x = x;
-			position.y = y;
-		}
-
-		void handleEvent(SDL_Event* e) {
-			if (e->type == SDL_MOUSEMOTION || e->type == SDL_MOUSEBUTTONDOWN || e->type == SDL_MOUSEBUTTONUP) {
-				int x, y;
-				SDL_GetMouseState(&x, &y);
-				bool inside = true;
-				if (x < position.x) {
-					inside = false;
-				} else if (x > position.x + BUTTON_WIDTH) {
-					inside = false;
-				} else if (y < position.y) {
-					inside = false;
-				} else if (y > position.y + BUTTON_HEIGHT) {
-					inside = false;
-				}
-				if (!inside) {
-					currentSprite = BUTTON_SPRITE_MOUSE_OUT;
-				} else {
-					switch (e->type) {
-						case SDL_MOUSEMOTION: {
-							currentSprite = BUTTON_SPRITE_MOUSE_OVER_MOTION;
-							break;
-						}
-						case SDL_MOUSEBUTTONDOWN: {
-							currentSprite = BUTTON_SPRITE_MOUSE_DOWN;
-							break;
-						}
-						case SDL_MOUSEBUTTONUP: {
-							currentSprite = BUTTON_SPRITE_MOUSE_UP;
-							break;
-						}
-						default: {
-							break;
-						}
-					}
-				}
-			}
-		}
-
-		void render(SDL_Renderer* renderer, Texture* buttonSpriteSheetTexture, SDL_Rect* buttonClips) {
-			buttonSpriteSheetTexture->render(renderer, position.x, position.y, &buttonClips[currentSprite]);
-		}
-
-	private:
-		SDL_Point position;
-		ButtonSprite currentSprite;
-	};
-
-	Button buttons[NUM_BUTTONS];
 	SDL_Rect buttonClips[NUM_BUTTONS];
+	Button buttons[NUM_BUTTONS];
 	Texture buttonSpriteSheetTexture;
 };
 
 
 int main(int argc, char** argv) {
-	MainWindow mainWindow;
+	TestRendering mainWindow;
 	if (!mainWindow.init()) {
 		printf("Failed to initialize!\n");
 	} else {

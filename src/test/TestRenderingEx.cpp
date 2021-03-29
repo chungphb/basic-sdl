@@ -1,14 +1,13 @@
-#include <SDL.h>
-#include <SDL_image.h>
+#include <core/Window.h>
+#include <core/Texture.h>
 #include <stdio.h>
-#include <string>
 
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
 
-struct MainWindow {
+struct TestRenderingEx : public Window {
 public:
-	bool init() {
+	bool init() override {
 		bool success = true;
 		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 			printf("SDL could not initialize! Error: %s\n", SDL_GetError());
@@ -39,7 +38,7 @@ public:
 		return success;
 	}
 
-	bool loadMedia() {
+	bool loadMedia() override {
 		bool success = true;
 
 		if (!spriteSheetTexture.loadFromFile(renderer, "image/animated_character.png")) {
@@ -84,7 +83,7 @@ public:
 		return success;
 	}
 
-	void run() {
+	void run() override {
 		bool quit = false;
 		SDL_Event e;
 		int frame = 0;
@@ -119,7 +118,7 @@ public:
 		}
 	}
 
-	void close() {
+	void close() override {
 		spriteSheetTexture.free();
 		backgroundTexture.free();
 		SDL_DestroyRenderer(renderer);
@@ -132,87 +131,7 @@ public:
 
 private:
 	static constexpr int NUM_FRAMES = 4;
-
-	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
-
-	struct Texture {
-	public:
-		Texture() {
-			texture = nullptr;
-			width = 0;
-			height = 0;
-		}
-
-		~Texture() {
-			free();
-		}
-
-		bool loadFromFile(SDL_Renderer* renderer, std::string path) {
-			free();
-			SDL_Texture* newTexture = nullptr;
-			SDL_Surface* loadedSurface = IMG_Load(path.c_str());
-			if (!loadedSurface) {
-				printf("Unable to load image %s! Error: %s\n", path.c_str(), IMG_GetError());
-			} else {
-				SDL_SetColorKey(loadedSurface, true, SDL_MapRGB(loadedSurface->format, 0x00, 0xFF, 0xFF));
-				newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
-				if (!newTexture) {
-					printf("Unable to create texture from %s! Error: %s\n", path.c_str(), SDL_GetError());
-				} else {
-					width = loadedSurface->w;
-					height = loadedSurface->h;
-				}
-				SDL_FreeSurface(loadedSurface);
-			}
-			texture = newTexture;
-			return texture != nullptr;
-		}
-
-		void setColor(Uint8 r, Uint8 g, Uint8 b) {
-			SDL_SetTextureColorMod(texture, r, g, b);
-		}
-
-		void setBlendMode(SDL_BlendMode blendMode) {
-			SDL_SetTextureBlendMode(texture, blendMode);
-		}
-
-		void setAlpha(Uint8 alpha) {
-			SDL_SetTextureAlphaMod(texture, alpha);
-		}
-
-		void free() {
-			if (texture) {
-				SDL_DestroyTexture(texture);
-				texture = nullptr;
-				width = 0;
-				height = 0;
-			}
-		}
-
-		void render(SDL_Renderer* renderer, int x, int y, SDL_Rect* clip = nullptr, double angle = 0.0, SDL_Point* center = nullptr, SDL_RendererFlip flip = SDL_FLIP_NONE) {
-			SDL_Rect renderQuad{x, y, width, height};
-			if (clip) {
-				renderQuad.w = clip->w;
-				renderQuad.h = clip->h;
-			}
-			SDL_RenderCopyEx(renderer, texture, clip, &renderQuad, angle, center, flip);
-		}
-
-		int getWidth() {
-			return width;
-		}
-
-		int getHeight() {
-			return height;
-		}
-
-	private:
-		SDL_Texture* texture;
-		int width;
-		int height;
-	};
-
 	SDL_Rect spriteClips[NUM_FRAMES];
 	Texture spriteSheetTexture;
 	Texture backgroundTexture;
@@ -224,7 +143,7 @@ private:
 
 
 int main(int argc, char** argv) {
-	MainWindow mainWindow;
+	TestRenderingEx mainWindow;
 	if (!mainWindow.init()) {
 		printf("Failed to initialize!\n");
 	} else {

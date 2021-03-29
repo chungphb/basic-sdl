@@ -1,15 +1,14 @@
-#include <SDL.h>
-#include <SDL_image.h>
+#include <core/Window.h>
+#include <core/Texture.h>
 #include <SDL_mixer.h>
 #include <stdio.h>
-#include <string>
 
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
 
-struct MainWindow {
+struct TestSound : public Window {
 public:
-	bool init() {
+	bool init() override {
 		bool success = true;
 		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
 			printf("SDL could not initialize! Error: %s\n", SDL_GetError());
@@ -45,7 +44,7 @@ public:
 		return success;
 	}
 
-	bool loadMedia() {
+	bool loadMedia() override {
 		bool success = true;
 		if (!characterTexture.loadFromFile(renderer, "image/character.png")) {
 			printf("Failed to load \"character\" texture image!\n");
@@ -68,7 +67,7 @@ public:
 		return success;
 	}
 
-	void run() {
+	void run() override {
 		bool quit = false;
 		SDL_Event e;
 		while (!quit) {
@@ -111,7 +110,7 @@ public:
 		}
 	}
 
-	void close() {
+	void close() override {
 		characterTexture.free();
 		backgroundTexture.free();
 		Mix_FreeChunk(soundEffect);
@@ -127,68 +126,7 @@ public:
 	}
 
 private:
-	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
-	struct Texture {
-	public:
-		Texture() {
-			texture = nullptr;
-			width = 0;
-			height = 0;
-		}
-
-		~Texture() {
-			free();
-		}
-
-		bool loadFromFile(SDL_Renderer* renderer, std::string path) {
-			free();
-			SDL_Texture* newTexture = nullptr;
-			SDL_Surface* loadedSurface = IMG_Load(path.c_str());
-			if (!loadedSurface) {
-				printf("Unable to load image %s! Error: %s\n", path.c_str(), IMG_GetError());
-			} else {
-				SDL_SetColorKey(loadedSurface, true, SDL_MapRGB(loadedSurface->format, 0x00, 0xFF, 0xFF));
-				newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
-				if (!newTexture) {
-					printf("Unable to create texture from %s! Error: %s\n", path.c_str(), SDL_GetError());
-				} else {
-					width = loadedSurface->w;
-					height = loadedSurface->h;
-				}
-				SDL_FreeSurface(loadedSurface);
-			}
-			texture = newTexture;
-			return texture != nullptr;
-		}
-
-		void free() {
-			if (texture) {
-				SDL_DestroyTexture(texture);
-				texture = nullptr;
-				width = 0;
-				height = 0;
-			}
-		}
-
-		void render(SDL_Renderer* renderer, int x, int y) {
-			SDL_Rect renderQuad{x, y, width, height};
-			SDL_RenderCopy(renderer, texture, nullptr, &renderQuad);
-		}
-
-		int getWidth() {
-			return width;
-		}
-
-		int getHeight() {
-			return height;
-		}
-
-	private:
-		SDL_Texture* texture;
-		int width;
-		int height;
-	};
 	Texture characterTexture;
 	Texture backgroundTexture;
 
@@ -198,7 +136,7 @@ private:
 
 
 int main(int argc, char** argv) {
-	MainWindow mainWindow;
+	TestSound mainWindow;
 	if (!mainWindow.init()) {
 		printf("Failed to initialize!\n");
 	} else {

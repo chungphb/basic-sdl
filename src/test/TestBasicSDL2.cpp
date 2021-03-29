@@ -1,4 +1,4 @@
-#include <SDL.h>
+#include <core/Window.h>
 #include <stdio.h>
 #include <string>
 
@@ -14,9 +14,9 @@ enum KeyPressSurfaces {
 	KEY_PRESS_SURFACE_TOTAL
 };
 
-struct MainWindow {
+struct TestBasicSDL2 : public Window {
 public:
-	bool init() {
+	bool init() override {
 		bool success = true;
 		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 			printf("SDL could not initialize! Error: %s\n", SDL_GetError());
@@ -33,7 +33,7 @@ public:
 		return success;
 	}
 
-	bool loadMedia() {
+	bool loadMedia() override {
 		bool success = true;
 		keyPressSurfaces[KEY_PRESS_SURFACE_DEFAULT] = loadSurface("image/default.bmp");
 		if (!keyPressSurfaces[KEY_PRESS_SURFACE_DEFAULT]) {
@@ -63,7 +63,7 @@ public:
 		return success;
 	}
 
-	void run() {
+	void run() override {
 		bool quit = false;
 		currentSurface = keyPressSurfaces[KEY_PRESS_SURFACE_DEFAULT];
 		SDL_Event e;
@@ -106,7 +106,7 @@ public:
 		}
 	}
 
-	void close() {
+	void close() override {
 		for (int i = 0; i < KEY_PRESS_SURFACE_TOTAL; i++) {
 			SDL_FreeSurface(keyPressSurfaces[i]);
 			keyPressSurfaces[i] = nullptr;
@@ -133,7 +133,6 @@ public:
 	}
 
 private:
-	SDL_Window* window = nullptr;
 	SDL_Surface* screenSurface = nullptr;
 	SDL_Surface* keyPressSurfaces[KEY_PRESS_SURFACE_TOTAL];
 	SDL_Surface* currentSurface = nullptr;
@@ -141,7 +140,7 @@ private:
 
 
 int main(int argc, char** argv) {
-	MainWindow mainWindow;
+	TestBasicSDL2 mainWindow;
 	if (!mainWindow.init()) {
 		printf("Failed to initialize!\n");
 	} else {
