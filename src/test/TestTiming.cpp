@@ -70,9 +70,9 @@ public:
 			}
 		}
 
-		timeFont = TTF_OpenFont("font/pixeboy.ttf", 32);
+		timeFont = TTF_OpenFont("font/pixel.ttf", 28);
 		if (!timeFont) {
-			printf("Failed to load \"pixeboy\" font! Error: %s\n", TTF_GetError());
+			printf("Failed to load \"pixel\" font! Error: %s\n", TTF_GetError());
 			success = false;
 		}
 		
@@ -82,8 +82,10 @@ public:
 	void run() override {
 		bool quit = false;
 		SDL_Event e;
-		Timer timer;
-		std::stringstream timeText;
+		Timer timer, fpsTimer;
+		std::stringstream timeText, fpsText;
+		int nFrames = 0;
+		fpsTimer.start();
 		while (!quit) {
 			while (SDL_PollEvent(&e) != 0) {
 				if (e.type == SDL_QUIT) {
@@ -116,22 +118,45 @@ public:
 				printf("Failed to render time texture!\n");
 			}
 
+			float avgFPS = nFrames / (fpsTimer.getTicks() / 1000.);
+			if (avgFPS > 2000000) {
+				avgFPS = 0;
+			}
+
+			fpsText.str("");
+			fpsText << std::fixed << std::setprecision(2);
+			fpsText << "FPS : " << std::setw(7) << avgFPS;
+			if (!fpsTexture.loadFromRenderedText(renderer, timeFont, fpsText.str(), SDL_Color{0xEF, 0x81, 0x96})) {
+				printf("Failed to render fps texture!\n");
+			}
+
 			SDL_RenderClear(renderer);
 			backgroundTexture.render(renderer, 0, 0);
 			nameTexture.render(renderer, 320, 180);
-			timeTexture.render(renderer, WINDOW_WIDTH - 180, 20);
+			timeTexture.render(renderer, WINDOW_WIDTH - 200, 20);
+			fpsTexture.render(renderer, WINDOW_WIDTH - 200, 45);
 			characterTexture.render(renderer, WINDOW_WIDTH / 2 + 40, WINDOW_HEIGHT / 2 + 40);
 			SDL_RenderPresent(renderer);
+
+			nFrames++;
 		}
 	}
 
 	void close() override {
 		characterTexture.free();
 		backgroundTexture.free();
+		nameTexture.free();
+		timeTexture.free();
+		fpsTexture.free();
+		TTF_CloseFont(titleFont);
+		TTF_CloseFont(timeFont);
+		titleFont = nullptr;
+		timeFont = nullptr;
 		SDL_DestroyRenderer(renderer);
 		renderer = nullptr;
 		SDL_DestroyWindow(window);
 		window = nullptr;
+		TTF_Quit();
 		IMG_Quit();
 		SDL_Quit();
 	}
@@ -144,6 +169,7 @@ private:
 	Texture backgroundTexture;
 	Texture nameTexture;
 	Texture timeTexture;
+	Texture fpsTexture;
 };
 
 
