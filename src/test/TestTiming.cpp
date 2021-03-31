@@ -7,6 +7,8 @@
 
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
+const int SCREEN_FPS = 60;
+const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 
 struct TestTiming : public Window {
 public:
@@ -82,11 +84,12 @@ public:
 	void run() override {
 		bool quit = false;
 		SDL_Event e;
-		Timer timer, fpsTimer;
+		Timer timer, fpsTimer, capTimer;
 		std::stringstream timeText, fpsText;
 		int nFrames = 0;
 		fpsTimer.start();
 		while (!quit) {
+			capTimer.start();
 			while (SDL_PollEvent(&e) != 0) {
 				if (e.type == SDL_QUIT) {
 					quit = true;
@@ -139,6 +142,11 @@ public:
 			SDL_RenderPresent(renderer);
 
 			nFrames++;
+
+			int frameTicks = capTimer.getTicks();
+			if (frameTicks < SCREEN_TICKS_PER_FRAME) {
+				SDL_Delay(SCREEN_TICKS_PER_FRAME - frameTicks);
+			}
 		}
 	}
 
