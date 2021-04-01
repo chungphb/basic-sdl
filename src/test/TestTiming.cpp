@@ -21,12 +21,12 @@ public:
 			if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
 				printf("Warning: Linear texture filtering is not enabled!");
 			}
-			window = SDL_CreateWindow("Hello world!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+			window = SDL_CreateWindow("Test timing!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 			if (!window) {
 				printf("Window could not be created! Error: %s\n", SDL_GetError());
 				success = false;
 			} else {
-				renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+				renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 				if (!renderer) {
 					printf("Renderer could not be created! Error: %s\n", SDL_GetError());
 					success = false;
@@ -50,13 +50,8 @@ public:
 	bool loadMedia() override {
 		bool success = true;
 
-		if (!characterTexture.loadFromFile(renderer, "image/character.png")) {
-			printf("Failed to load \"character\" texture image!\n");
-			success = false;
-		}
-
-		if (!backgroundTexture.loadFromFile(renderer, "image/background.png")) {
-			printf("Failed to load \"background\" texture image!\n");
+		if (!landscapeTexture.loadFromFile(renderer, "image/landscape.png")) {
+			printf("Failed to load \"landscape\" texture image!\n");
 			success = false;
 		}
 
@@ -64,12 +59,6 @@ public:
 		if (!titleFont) {
 			printf("Failed to load \"gasalt\" font! Error: %s\n", TTF_GetError());
 			success = false;
-		} else {
-			SDL_Color textColor{0xEF, 0x81, 0x96};
-			if (!nameTexture.loadFromRenderedText(renderer, titleFont, "Kitty!", textColor)) {
-				printf("Failed to render text texture!\n");
-				success = false;
-			}
 		}
 
 		timeFont = TTF_OpenFont("font/pixel.ttf", 28);
@@ -117,7 +106,7 @@ public:
 			timeText.str("");
 			timeText << std::fixed << std::setprecision(2);
 			timeText << "Time: " << std::setw(7) << timer.getTicks() / 1000.;
-			if (!timeTexture.loadFromRenderedText(renderer, timeFont, timeText.str(), SDL_Color{0xEF, 0x81, 0x96})) {
+			if (!timeTexture.loadFromRenderedText(renderer, timeFont, timeText.str(), SDL_Color{0x00, 0x00, 0x44})) {
 				printf("Failed to render time texture!\n");
 			}
 
@@ -129,16 +118,14 @@ public:
 			fpsText.str("");
 			fpsText << std::fixed << std::setprecision(2);
 			fpsText << "FPS : " << std::setw(7) << avgFPS;
-			if (!fpsTexture.loadFromRenderedText(renderer, timeFont, fpsText.str(), SDL_Color{0xEF, 0x81, 0x96})) {
+			if (!fpsTexture.loadFromRenderedText(renderer, timeFont, fpsText.str(), SDL_Color{0x00, 0x00, 0x44})) {
 				printf("Failed to render fps texture!\n");
 			}
 
 			SDL_RenderClear(renderer);
-			backgroundTexture.render(renderer, 0, 0);
-			nameTexture.render(renderer, 320, 180);
+			landscapeTexture.render(renderer, 0, 0);
 			timeTexture.render(renderer, WINDOW_WIDTH - 200, 20);
 			fpsTexture.render(renderer, WINDOW_WIDTH - 200, 45);
-			characterTexture.render(renderer, WINDOW_WIDTH / 2 + 40, WINDOW_HEIGHT / 2 + 40);
 			SDL_RenderPresent(renderer);
 
 			nFrames++;
@@ -151,9 +138,7 @@ public:
 	}
 
 	void close() override {
-		characterTexture.free();
-		backgroundTexture.free();
-		nameTexture.free();
+		landscapeTexture.free();
 		timeTexture.free();
 		fpsTexture.free();
 		TTF_CloseFont(titleFont);
@@ -173,9 +158,7 @@ private:
 	SDL_Renderer* renderer = nullptr;
 	TTF_Font* titleFont = nullptr;
 	TTF_Font* timeFont = nullptr;
-	Texture characterTexture;
-	Texture backgroundTexture;
-	Texture nameTexture;
+	Texture landscapeTexture;
 	Texture timeTexture;
 	Texture fpsTexture;
 };

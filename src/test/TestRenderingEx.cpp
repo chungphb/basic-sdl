@@ -16,12 +16,12 @@ public:
 			if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
 				printf("Warning: Linear texture filtering is not enabled!");
 			}
-			window = SDL_CreateWindow("Kitty world!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+			window = SDL_CreateWindow("Test rendering ex!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 			if (!window) {
 				printf("Window could not be created! Error: %s\n", SDL_GetError());
 				success = false;
 			} else {
-				renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+				renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 				if (!renderer) {
 					printf("Renderer could not be created! Error: %s\n", SDL_GetError());
 					success = false;
@@ -109,9 +109,9 @@ public:
 			SDL_SetRenderDrawColor(renderer, 0x59, 0x59, 0x59, 0xFF);
 			SDL_RenderClear(renderer);
 			currentBackgroundTexture->render(renderer, 0, 0);
-			spriteSheetTexture.render(renderer, 360, 280, &spriteClips[frame / 300]);
+			spriteSheetTexture.render(renderer, 360, 280, &spriteClips[frame / 12]);
 			frame++;
-			if (frame / 300 >= NUM_FRAMES) {
+			if (frame / 12 >= NUM_FRAMES) {
 				frame = 0;
 			}
 			SDL_RenderPresent(renderer);
