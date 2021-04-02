@@ -16,6 +16,8 @@ public:
 		posY = 0;
 		velX = 0;
 		velY = 0;
+		collisonBox.w = DOT_HEIGHT;
+		collisonBox.h = DOT_WIDTH;
 	}
 
 	void handleEvent(SDL_Event& e) {
@@ -58,15 +60,35 @@ public:
 		}
 	}
 
-	void move() {
+	void move(SDL_Rect& wall) {
 		posX += velX;
-		if (posX < 0 || (posX + DOT_WIDTH > WINDOW_WIDTH)) {
+		collisonBox.x = posX;
+		if (posX < 0 || (posX + DOT_WIDTH > WINDOW_WIDTH) || (checkCollision(wall, collisonBox))) {
 			posX -= velX;
+			collisonBox.x = posX;
 		}
 		posY += velY;
-		if (posY < 0 || (posY + DOT_HEIGHT > WINDOW_HEIGHT)) {
+		collisonBox.y = posY;
+		if (posY < 0 || (posY + DOT_HEIGHT > WINDOW_HEIGHT) || (checkCollision(wall, collisonBox))) {
 			posY -= velY;
+			collisonBox.y = posY;
 		}
+	}
+
+	bool checkCollision(SDL_Rect& recA, SDL_Rect& recB) {
+		if (recA.x + recA.w <= recB.x) {
+			return false;
+		}
+		if (recA.x >= recB.x + recB.w) {
+			return false;
+		}
+		if (recA.y + recA.h <= recB.y) {
+			return false;
+		}
+		if (recA.y >= recB.y + recB.h) {
+			return false;
+		}
+		return true;
 	}
 
 	void render(SDL_Renderer* renderer, Texture* dotTexture) {
@@ -76,6 +98,7 @@ public:
 private:
 	int posX, posY;
 	int velX, velY;
+	SDL_Rect collisonBox;
 };
 
 struct TestMotion : public Window {
@@ -124,6 +147,11 @@ public:
 		bool quit = false;
 		SDL_Event e;
 		Dot dot;
+		SDL_Rect wall;
+		wall.x = 300;
+		wall.y = 40;
+		wall.w = 40;
+		wall.h = 400;
 		while (!quit) {
 			while (SDL_PollEvent(&e) != 0) {
 				if (e.type == SDL_QUIT) {
@@ -132,9 +160,11 @@ public:
 					dot.handleEvent(e);
 				}
 			}
-			dot.move();
+			dot.move(wall);
 			SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 			SDL_RenderClear(renderer);
+			SDL_SetRenderDrawColor(renderer, 0xC0, 0x00, 0x00, 0xFF);
+			SDL_RenderDrawRect(renderer, &wall);
 			dot.render(renderer, &dotTexture);
 			SDL_RenderPresent(renderer);
 		}
