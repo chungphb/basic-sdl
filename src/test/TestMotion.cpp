@@ -2,6 +2,7 @@
 #include <core/Texture.h>
 #include <stdio.h>
 #include <vector>
+#include <math.h>
 
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
@@ -19,8 +20,8 @@ public:
 		posY = 0;
 		velX = 0;
 		velY = 0;
-		collisonBox.w = DOT_HEIGHT;
-		collisonBox.h = DOT_WIDTH;
+		collider.w = DOT_HEIGHT;
+		collider.h = DOT_WIDTH;
 	}
 
 	void handleEvent(SDL_Event& e) {
@@ -65,16 +66,16 @@ public:
 
 	void move(SDL_Rect& wall) {
 		posX += velX;
-		collisonBox.x = posX;
-		if (posX < 0 || (posX + DOT_WIDTH > WINDOW_WIDTH) || (checkCollision(wall, collisonBox))) {
+		collider.x = posX;
+		if (posX < 0 || (posX + DOT_WIDTH > WINDOW_WIDTH) || checkCollision(wall, collider)) {
 			posX -= velX;
-			collisonBox.x = posX;
+			collider.x = posX;
 		}
 		posY += velY;
-		collisonBox.y = posY;
-		if (posY < 0 || (posY + DOT_HEIGHT > WINDOW_HEIGHT) || (checkCollision(wall, collisonBox))) {
+		collider.y = posY;
+		if (posY < 0 || (posY + DOT_HEIGHT > WINDOW_HEIGHT) || checkCollision(wall, collider)) {
 			posY -= velY;
-			collisonBox.y = posY;
+			collider.y = posY;
 		}
 	}
 
@@ -101,7 +102,7 @@ public:
 private:
 	int posX, posY;
 	int velX, velY;
-	SDL_Rect collisonBox;
+	SDL_Rect collider;
 };
 
 struct TestMotion : public Window {
@@ -272,13 +273,13 @@ public:
 	void move(std::vector<SDL_Rect>& otherColliders) {
 		posX += velX;
 		shiftColliders();
-		if (posX < 0 || (posX + DOT_WIDTH > WINDOW_WIDTH) || (checkCollision(colliders, otherColliders))) {
+		if (posX < 0 || (posX + DOT_WIDTH > WINDOW_WIDTH) || checkCollision(colliders, otherColliders)) {
 			posX -= velX;
 			shiftColliders();
 		}
 		posY += velY;
 		shiftColliders();
-		if (posY < 0 || (posY + DOT_HEIGHT > WINDOW_HEIGHT) || (checkCollision(colliders, otherColliders))) {
+		if (posY < 0 || (posY + DOT_HEIGHT > WINDOW_HEIGHT) || checkCollision(colliders, otherColliders)) {
 			posY -= velY;
 			shiftColliders();
 		}
@@ -410,8 +411,235 @@ private:
 }
 
 
+namespace circular_collision_detection {
+
+struct Circle {
+	int x, y;
+	int r;
+};
+
+struct Dot {
+public:
+	static constexpr int DOT_WIDTH = 20;
+	static constexpr int DOT_HEIGHT = 20;
+	static constexpr int DOT_VEL = 10;
+
+	Dot(int x, int y) {
+		posX = x;
+		posY = y;
+		velX = 0;
+		velY = 0;
+		collider.r = DOT_WIDTH / 2;
+		shiftColliders();
+	}
+
+	void handleEvent(SDL_Event& e) {
+		if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
+			switch (e.key.keysym.sym) {
+				case SDLK_UP: {
+					velY -= DOT_VEL; break;
+				}
+				case SDLK_DOWN: {
+					velY += DOT_VEL; break;
+				}
+				case SDLK_LEFT: {
+					velX -= DOT_VEL; break;
+				}
+				case SDLK_RIGHT: {
+					velX += DOT_VEL; break;
+				}
+				default: {
+					break;
+				}
+			}
+		} else if (e.type == SDL_KEYUP && e.key.repeat == 0) {
+			switch (e.key.keysym.sym) {
+				case SDLK_UP: {
+					velY += DOT_VEL; break;
+				}
+				case SDLK_DOWN: {
+					velY -= DOT_VEL; break;
+				}
+				case SDLK_LEFT: {
+					velX += DOT_VEL; break;
+				}
+				case SDLK_RIGHT: {
+					velX -= DOT_VEL; break;
+				}
+				default: {
+					break;
+				}
+			}
+		}
+	}
+
+	void move(std::vector<SDL_Rect>& squares, Circle& circle) {
+		posX += velX;
+		shiftColliders();
+		if (posX - collider.r < 0 || (posX + collider.r > WINDOW_WIDTH) || checkCollision(collider, squares) || checkCollision(collider, circle)) {
+			posX -= velX;
+			shiftColliders();
+		}
+		posY += velY;
+		shiftColliders();
+		if (posY - collider.r < 0 || (posY + collider.r > WINDOW_HEIGHT) || checkCollision(collider, squares) || checkCollision(collider, circle))  {
+			posY -= velY;
+			shiftColliders();
+		}
+	}
+
+	bool checkCollision(Circle& circle, std::vector<SDL_Rect>& rects) {
+		for (const auto& rect : rects) {
+			SDL_Point closestPoint;
+			if (circle.x < rect.x) {
+				closestPoint.x = rect.x;
+			} else if (circle.x > rect.x + rect.w) {
+				closestPoint.x = rect.x + rect.w;
+			} else {
+				closestPoint.x = circle.x;
+			}
+			if (circle.y < rect.y) {
+				closestPoint.y = rect.y;
+			} else if (circle.y > rect.y + rect.h) {
+				closestPoint.y = rect.y + rect.h;
+			} else {
+				closestPoint.y = circle.y;
+			}
+			if (distance(circle.x, closestPoint.x, circle.y, closestPoint.y) < circle.r * circle.r) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool checkCollision(Circle& circleA, Circle& circleB) {
+		if (distance(circleA.x, circleB.x, circleA.y, circleB.y) < (circleA.r + circleB.r) * (circleA.r + circleB.r)) {
+			return true;
+		}
+		return false;
+	}
+
+	void render(SDL_Renderer* renderer, Texture* dotTexture) {
+		dotTexture->render(renderer, posX - collider.r, posY - collider.r);
+	}
+
+	Circle& getCollider() {
+		return collider;
+	}
+
+	int distance(int x1, int x2, int y1, int y2) {
+		return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+	}
+
+private:
+	void shiftColliders() {
+		collider.x = posX;
+		collider.y = posY;
+	}
+
+private:
+	int posX, posY;
+	int velX, velY;
+	Circle collider;
+};
+
+struct TestMotion : public Window {
+public:
+	bool init() override {
+		bool success = true;
+		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+			printf("SDL could not initialize! Error: %s\n", SDL_GetError());
+			success = false;
+		} else {
+			if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
+				printf("Warning: Linear texture filtering is not enabled!");
+			}
+			window = SDL_CreateWindow("Test motion!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+			if (!window) {
+				printf("Window could not be created! Error: %s\n", SDL_GetError());
+				success = false;
+			} else {
+				renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+				if (!renderer) {
+					printf("Renderer could not be created! Error: %s\n", SDL_GetError());
+					success = false;
+				} else {
+					SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+					int imgFlags = IMG_INIT_PNG;
+					if (!(IMG_Init(imgFlags) & imgFlags)) {
+						printf("SDL2_image could not initialize! Error: %s\n", IMG_GetError());
+						success = false;
+					}
+				}
+			}
+		}
+		return success;
+	}
+
+	bool loadMedia() override {
+		bool success = true;
+		if (!greenDotTexture.loadFromFile(renderer, "image/green_dot.png")) {
+			printf("Failed to load \"green_dot\" texture image!\n");
+			success = false;
+		}
+		if (!redDotTexture.loadFromFile(renderer, "image/red_dot.png")) {
+			printf("Failed to load \"red_dot\" texture image!\n");
+			success = false;
+		}
+		return success;
+	}
+
+	void run() override {
+		bool quit = false;
+		SDL_Event e;
+		Dot greenDot{Dot::DOT_WIDTH / 2, Dot::DOT_HEIGHT / 2};
+		Dot redDot{240, WINDOW_HEIGHT / 2};
+		std::vector<SDL_Rect> walls;
+		walls.emplace_back(SDL_Rect{300, 40, 40, 400});
+		walls.emplace_back(SDL_Rect{140, 40, 40, 200});
+		walls.emplace_back(SDL_Rect{460, 240, 40, 200});
+		while (!quit) {
+			while (SDL_PollEvent(&e) != 0) {
+				if (e.type == SDL_QUIT) {
+					quit = true;
+				} else {
+					greenDot.handleEvent(e);
+				}
+			}
+			greenDot.move(walls, redDot.getCollider());
+			SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+			SDL_RenderClear(renderer);
+			SDL_SetRenderDrawColor(renderer, 0x00, 0x70, 0xC0, 0xFF);
+			SDL_RenderFillRect(renderer, &walls[0]);
+			SDL_RenderFillRect(renderer, &walls[1]);
+			SDL_RenderFillRect(renderer, &walls[2]);
+			greenDot.render(renderer, &greenDotTexture);
+			redDot.render(renderer, &redDotTexture);
+			SDL_RenderPresent(renderer);
+		}
+	}
+
+	void close() override {
+		greenDotTexture.free();
+		redDotTexture.free();
+		SDL_DestroyRenderer(renderer);
+		renderer = nullptr;
+		SDL_DestroyWindow(window);
+		window = nullptr;
+		IMG_Quit();
+		SDL_Quit();
+	}
+
+private:
+	SDL_Renderer* renderer = nullptr;
+	Texture greenDotTexture;
+	Texture redDotTexture;
+};
+
+}
+
 int main(int argc, char** argv) {
-	per_pixel_collision_detection::TestMotion mainWindow;
+	circular_collision_detection::TestMotion mainWindow;
 	if (!mainWindow.init()) {
 		printf("Failed to initialize!\n");
 	} else {

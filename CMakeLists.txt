@@ -67,6 +67,6 @@ target_link_libraries(TestSound PUBLIC core PRIVATE ${SDL2_LIBRARY} ${SDL2_image
 add_executable(TestTiming "src/test/TestTiming.cpp")
 target_link_libraries(TestTiming PUBLIC core PRIVATE ${SDL2_LIBRARY} ${SDL2_image_LIBRARY} ${SDL2_ttf_LIBRARY})
 
-# Lesson 26
+# Lesson 26, 27, 28, 29
 add_executable(TestMotion "src/test/TestMotion.cpp")
 target_link_libraries(TestMotion PUBLIC core PRIVATE ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
