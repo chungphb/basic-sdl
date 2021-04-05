@@ -70,3 +70,7 @@ target_link_libraries(TestTiming PUBLIC core PRIVATE ${SDL2_LIBRARY} ${SDL2_imag
 # Lesson 26, 27, 28, 29
 add_executable(TestMotion "src/test/TestMotion.cpp")
 target_link_libraries(TestMotion PUBLIC core PRIVATE ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
+
+# Lesson 30
+add_executable(TestScrolling "src/test/TestScrolling.cpp")
+target_link_libraries(TestScrolling PUBLIC core PRIVATE ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
