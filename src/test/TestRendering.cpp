@@ -76,7 +76,7 @@ public:
 		
 		font = TTF_OpenFont("font/crackman.ttf", 60);
 		if (!font) {
-			printf("Failed to load \"gasalt\" font! Error: %s\n", TTF_GetError());
+			printf("Failed to load \"crackman\" font! Error: %s\n", TTF_GetError());
 			success = false;
 		} else {
 			SDL_Color textColor{0xE3, 0xA7, 0xC0};

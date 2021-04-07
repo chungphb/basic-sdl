@@ -106,7 +106,7 @@ public:
 			if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
 				printf("Warning: Linear texture filtering is not enabled!");
 			}
-			window = SDL_CreateWindow("Test motion!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+			window = SDL_CreateWindow("Test scrolling!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 			if (!window) {
 				printf("Window could not be created! Error: %s\n", SDL_GetError());
 				success = false;
@@ -296,7 +296,7 @@ public:
 			if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
 				printf("Warning: Linear texture filtering is not enabled!");
 			}
-			window = SDL_CreateWindow("Test motion!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+			window = SDL_CreateWindow("Test scrolling backgrounds!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 			if (!window) {
 				printf("Window could not be created! Error: %s\n", SDL_GetError());
 				success = false;
