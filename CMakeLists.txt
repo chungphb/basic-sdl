@@ -82,3 +82,7 @@ target_link_libraries(TestTextInput PUBLIC core PRIVATE ${SDL2_LIBRARY} ${SDL2_i
 # Lesson 33
 add_executable(TestFile "src/test/TestFile.cpp")
 target_link_libraries(TestFile PUBLIC core PRIVATE ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
+
+# Lesson 34
+add_executable(TestAudioRecording "src/test/TestAudioRecording.cpp")
+target_link_libraries(TestAudioRecording PUBLIC core PRIVATE ${SDL2_LIBRARY} ${SDL2_image_LIBRARY})
