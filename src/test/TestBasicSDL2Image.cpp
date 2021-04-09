@@ -10,7 +10,7 @@ public:
 			printf("SDL could not initialize! Error: %s\n", SDL_GetError());
 			success = false;
 		} else {
-			window = SDL_CreateWindow("Test basic SDL2_image!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+			window = SDL_CreateWindow(name().c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 			if (!window) {
 				printf("Window could not be created! Error: %s\n", SDL_GetError());
 				success = false;
@@ -74,6 +74,10 @@ public:
 			SDL_FreeSurface(loadedSurface);
 		}
 		return optimizedSurface;
+	}
+
+	std::string name() override {
+		return "Test Basic SDL2 Image";
 	}
 
 private:

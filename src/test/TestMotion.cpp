@@ -145,6 +145,10 @@ public:
 		BasicTestBase::close();
 	}
 
+	std::string name() override {
+		return "Test Collision Detection";
+	}
+
 private:
 	Texture dotTexture;
 };
@@ -324,6 +328,10 @@ public:
 		greenDotTexture.free();
 		redDotTexture.free();
 		BasicTestBase::close();
+	}
+
+	std::string name() override {
+		return "Test Per-Pixel Collision Detection";
 	}
 
 private:
@@ -517,6 +525,10 @@ public:
 		BasicTestBase::close();
 	}
 
+	std::string name() override {
+		return "Test Circular Collision Detection";
+	}
+
 private:
 	Texture greenDotTexture;
 	Texture redDotTexture;
@@ -525,7 +537,17 @@ private:
 }
 
 int main(int argc, char** argv) {
-	circular_collision_detection::TestMotion mainWindow;
-	mainWindow.test();
+	{
+		collision_detection::TestMotion mainWindow;
+		mainWindow.test();
+	}
+	{
+		per_pixel_collision_detection::TestMotion mainWindow;
+		mainWindow.test();
+	}
+	{
+		circular_collision_detection::TestMotion mainWindow;
+		mainWindow.test();
+	}
 	return 0;
 }

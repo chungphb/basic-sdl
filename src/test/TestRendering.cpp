@@ -183,6 +183,10 @@ public:
 		BasicTestBaseWithTTF::close();
 	}
 
+	std::string name() override {
+		return "Test Rendering";
+	}
+
 private:
 	static constexpr int NUM_CHARACTERS = 4;
 	static constexpr int NUM_BUTTONS = 4;

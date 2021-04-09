@@ -111,6 +111,10 @@ public:
 		BasicTestBaseWithTTF::close();
 	}
 
+	std::string name() override {
+		return "Test Timing";
+	}
+
 private:
 	TTF_Font* titleFont = nullptr;
 	TTF_Font* timeFont = nullptr;

@@ -74,6 +74,10 @@ public:
 		BasicTestBaseWithTTF::close();
 	}
 
+	std::string name() override {
+		return "Test Text Input";
+	}
+
 private:
 	TTF_Font* font = nullptr;
 	Texture inputTextTexture;

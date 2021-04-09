@@ -39,6 +39,10 @@ public:
 		BasicTestBase::close();
 	}
 
+	std::string name() override {
+		return "Test Basic Rendering Ex";
+	}
+
 private:
 	Texture characterTexture;
 	Texture backgroundTexture;

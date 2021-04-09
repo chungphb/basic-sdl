@@ -150,6 +150,10 @@ public:
 		BasicTestBase::close();
 	}
 
+	std::string name() override {
+		return "Test Scrolling";
+	}
+
 private:
 	Texture dotTexture;
 	Texture backgroundTexture;
@@ -241,7 +245,7 @@ private:
 	int velX, velY;
 };
 
-struct TestScrollingBackgrounds : public BasicTestBase {
+struct TestScrolling : public BasicTestBase {
 public:
 	bool loadMedia() override {
 		bool success = true;
@@ -291,6 +295,10 @@ public:
 		BasicTestBase::close();
 	}
 
+	std::string name() override {
+		return "Test Scrolling Backgrounds";
+	}
+
 private:
 	Texture dotTexture;
 	Texture backgroundTexture;
@@ -299,7 +307,13 @@ private:
 }
 
 int main(int argc, char** argv) {
-	test_scrolling_backgrounds::TestScrollingBackgrounds mainWindow;
-	mainWindow.test();
+	{
+		test_scrolling::TestScrolling mainWindow;
+		mainWindow.test();
+	}
+	{
+		test_scrolling_backgrounds::TestScrolling mainWindow;
+		mainWindow.test();
+	}
 	return 0;
 }

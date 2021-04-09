@@ -77,6 +77,10 @@ public:
 		BasicTestBaseWithController::close();
 	}
 
+	std::string name() override {
+		return "Test Controller";
+	}
+
 private:
 	Texture characterTexture;
 	Texture sunTexture;

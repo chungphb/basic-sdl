@@ -90,6 +90,10 @@ public:
 		BasicTestBase::close();
 	}
 
+	std::string name() override {
+		return "Test Rendering Ex";
+	}
+
 private:
 	static constexpr int NUM_FRAMES = 4;
 	SDL_Rect spriteClips[NUM_FRAMES];

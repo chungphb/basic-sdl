@@ -132,6 +132,10 @@ public:
 		BasicTestBaseWithTTF::close();
 	}
 
+	std::string name() override {
+		return "Test File";
+	}
+
 private:
 	static constexpr int NUM_ELEMENTS = 12;
 	const std::string FILE_PATH = "data.bin";

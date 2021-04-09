@@ -89,6 +89,10 @@ public:
 		BasicTestBaseWithAudio::close();
 	}
 
+	std::string name() override {
+		return "Test Sound";
+	}
+
 private:
 	Texture characterTexture;
 	Texture backgroundTexture;

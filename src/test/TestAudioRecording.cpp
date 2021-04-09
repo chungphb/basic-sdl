@@ -178,6 +178,10 @@ public:
 		BasicTestBaseWithTTFAndAudio::close();
 	}
 
+	std::string name() override {
+		return "Test Audio Recording";
+	}
+
 private:
 	static void audioRecordingCallback(void* userData, Uint8* stream, int len) {
 		memcpy(&recordingBuffer[bufferBytePosition], stream, len);

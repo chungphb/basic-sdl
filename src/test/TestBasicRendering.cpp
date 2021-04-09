@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <string>
 
+namespace test_image_rendering {
+
 struct TestBasicRendering : public BasicTestBase {
 public:
 	bool loadMedia() override {
@@ -23,13 +25,56 @@ public:
 					quit = true;
 				}
 			}
-
-			// IMAGE RENDERING
-
+			SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 			SDL_RenderClear(renderer);
 			SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+			SDL_RenderPresent(renderer);
+		}
+	}
 
-			// GEOMETRY RENDERING
+	void close() override {
+		SDL_DestroyTexture(texture);
+		texture = nullptr;
+		BasicTestBase::close();
+	}
+
+	SDL_Texture* loadTexture(std::string path) {
+		SDL_Texture* newTexture = nullptr;
+		SDL_Surface* loadedSurface = IMG_Load(path.c_str());
+		if (!loadedSurface) {
+			printf("Unable to load image %s! Error: %s\n", path.c_str(), IMG_GetError());
+		} else {
+			newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+			if (!newTexture) {
+				printf("Unable to create texture from %s! Error: %s\n", path.c_str(), SDL_GetError());
+			}
+			SDL_FreeSurface(loadedSurface);
+		}
+		return newTexture;
+	}
+
+	std::string name() override {
+		return "Test Image Rendering";
+	}
+
+private:
+	SDL_Texture* texture = nullptr;
+};
+
+}
+
+namespace test_geometry_rendering {
+
+struct TestBasicRendering : public BasicTestBase {
+	void run() override {
+		bool quit = false;
+		SDL_Event e;
+		while (!quit) {
+			while (SDL_PollEvent(&e) != 0) {
+				if (e.type == SDL_QUIT) {
+					quit = true;
+				}
+			}
 
 			SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 			SDL_RenderClear(renderer);
@@ -56,7 +101,40 @@ public:
 				SDL_RenderDrawPoint(renderer, WINDOW_WIDTH / 2, i);
 			}
 
-			// VIEWPORT
+			SDL_RenderPresent(renderer);
+		}
+	}
+
+	std::string name() override {
+		return "Test Geometry Rendering";
+	}
+};
+
+}
+
+namespace test_viewport {
+
+struct TestBasicRendering : public BasicTestBase {
+public:
+	bool loadMedia() override {
+		bool success = true;
+		texture = loadTexture("image/landscape.png");
+		if (!texture) {
+			printf("Failed to load texture image!\n");
+			success = false;
+		}
+		return success;
+	}
+
+	void run() override {
+		bool quit = false;
+		SDL_Event e;
+		while (!quit) {
+			while (SDL_PollEvent(&e) != 0) {
+				if (e.type == SDL_QUIT) {
+					quit = true;
+				}
+			}
 
 			SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 			SDL_RenderClear(renderer);
@@ -111,16 +189,28 @@ public:
 	}
 
 	std::string name() override {
-		return "Test Basic Rendering";
+		return "Test Viewport";
 	}
 
 private:
 	SDL_Texture* texture = nullptr;
 };
 
+}
+
 
 int main(int argc, char** argv) {
-	TestBasicRendering mainWindow;
-	mainWindow.test();
+	{
+		test_image_rendering::TestBasicRendering mainWindow;
+		mainWindow.test();
+	}
+	{
+		test_geometry_rendering::TestBasicRendering mainWindow;
+		mainWindow.test();
+	}
+	{
+		test_viewport::TestBasicRendering mainWindow;
+		mainWindow.test();
+	}
 	return 0;
 }
