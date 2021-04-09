@@ -1,4 +1,4 @@
-#include <core/Window.h>
+#include <util/TestBase.h>
 #include <core/Texture.h>
 #include <core/Timer.h>
 #include <stdio.h>
@@ -10,7 +10,7 @@ const int WINDOW_HEIGHT = 480;
 const int SCREEN_FPS = 60;
 const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 
-struct TestTiming : public Window {
+struct TestTiming : public TestBase {
 public:
 	bool init() override {
 		bool success = true;
@@ -155,7 +155,6 @@ public:
 	}
 
 private:
-	SDL_Renderer* renderer = nullptr;
 	TTF_Font* titleFont = nullptr;
 	TTF_Font* timeFont = nullptr;
 	Texture landscapeTexture;
@@ -166,15 +165,6 @@ private:
 
 int main(int argc, char** argv) {
 	TestTiming mainWindow;
-	if (!mainWindow.init()) {
-		printf("Failed to initialize!\n");
-	} else {
-		if (!mainWindow.loadMedia()) {
-			printf("Failed to load media!\n");
-		} else {
-			mainWindow.run();
-		}
-	}
-	mainWindow.close();
+	mainWindow.test();
 	return 0;
 }

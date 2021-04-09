@@ -1,4 +1,4 @@
-#include <core/Window.h>
+#include <util/TestBase.h>
 #include <core/Texture.h>
 #include <core/Button.h>
 #include <stdio.h>
@@ -9,7 +9,7 @@ const int WINDOW_HEIGHT = 480;
 const int BUTTON_WIDTH = 40;
 const int BUTTON_HEIGHT = 20;
 
-struct TestRendering : public Window {
+struct TestRendering : public TestBase {
 public:
 	bool init() override {
 		bool success = true;
@@ -231,7 +231,6 @@ private:
 	static constexpr int NUM_CHARACTERS = 4;
 	static constexpr int NUM_BUTTONS = 4;
 
-	SDL_Renderer* renderer = nullptr;
 	TTF_Font* font = nullptr;
 
 	SDL_Rect characterClips[NUM_CHARACTERS];
@@ -248,15 +247,6 @@ private:
 
 int main(int argc, char** argv) {
 	TestRendering mainWindow;
-	if (!mainWindow.init()) {
-		printf("Failed to initialize!\n");
-	} else {
-		if (!mainWindow.loadMedia()) {
-			printf("Failed to load media!\n");
-		} else {
-			mainWindow.run();
-		}
-	}
-	mainWindow.close();
+	mainWindow.test();
 	return 0;
 }

@@ -1,4 +1,4 @@
-#include <core/Window.h>
+#include <util/TestBase.h>
 #include <core/Texture.h>
 #include <stdio.h>
 #include <vector>
@@ -105,7 +105,7 @@ private:
 	SDL_Rect collider;
 };
 
-struct TestMotion : public Window {
+struct TestMotion : public TestBase {
 public:
 	bool init() override {
 		bool success = true;
@@ -185,7 +185,6 @@ public:
 	}
 
 private:
-	SDL_Renderer* renderer = nullptr;
 	Texture dotTexture;
 };
 
@@ -323,7 +322,7 @@ private:
 	std::vector<SDL_Rect> colliders;
 };
 
-struct TestMotion : public Window {
+struct TestMotion : public TestBase {
 public:
 	bool init() override {
 		bool success = true;
@@ -403,7 +402,6 @@ public:
 	}
 
 private:
-	SDL_Renderer* renderer = nullptr;
 	Texture greenDotTexture;
 	Texture redDotTexture;
 };
@@ -543,7 +541,7 @@ private:
 	Circle collider;
 };
 
-struct TestMotion : public Window {
+struct TestMotion : public TestBase {
 public:
 	bool init() override {
 		bool success = true;
@@ -631,7 +629,6 @@ public:
 	}
 
 private:
-	SDL_Renderer* renderer = nullptr;
 	Texture greenDotTexture;
 	Texture redDotTexture;
 };
@@ -640,15 +637,6 @@ private:
 
 int main(int argc, char** argv) {
 	circular_collision_detection::TestMotion mainWindow;
-	if (!mainWindow.init()) {
-		printf("Failed to initialize!\n");
-	} else {
-		if (!mainWindow.loadMedia()) {
-			printf("Failed to load media!\n");
-		} else {
-			mainWindow.run();
-		}
-	}
-	mainWindow.close();
+	mainWindow.test();
 	return 0;
 }

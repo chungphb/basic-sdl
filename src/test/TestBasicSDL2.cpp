@@ -1,4 +1,4 @@
-#include <core/Window.h>
+#include <util/TestBase.h>
 #include <stdio.h>
 #include <string>
 
@@ -14,7 +14,7 @@ enum KeyPressSurfaces {
 	KEY_PRESS_SURFACE_TOTAL
 };
 
-struct TestBasicSDL2 : public Window {
+struct TestBasicSDL2 : public TestBase {
 public:
 	bool init() override {
 		bool success = true;
@@ -141,15 +141,6 @@ private:
 
 int main(int argc, char** argv) {
 	TestBasicSDL2 mainWindow;
-	if (!mainWindow.init()) {
-		printf("Failed to initialize!\n");
-	} else {
-		if (!mainWindow.loadMedia()) {
-			printf("Failed to load media!\n");
-		} else {
-			mainWindow.run();
-		}
-	}
-	mainWindow.close();
+	mainWindow.test();
 	return 0;
 }

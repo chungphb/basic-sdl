@@ -1,4 +1,4 @@
-#include <core/Window.h>
+#include <util/TestBase.h>
 #include <core/Texture.h>
 #include <SDL_mixer.h>
 #include <stdio.h>
@@ -6,7 +6,7 @@
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
 
-struct TestSound : public Window {
+struct TestSound : public TestBase {
 public:
 	bool init() override {
 		bool success = true;
@@ -126,7 +126,6 @@ public:
 	}
 
 private:
-	SDL_Renderer* renderer = nullptr;
 	Texture characterTexture;
 	Texture backgroundTexture;
 
@@ -137,15 +136,6 @@ private:
 
 int main(int argc, char** argv) {
 	TestSound mainWindow;
-	if (!mainWindow.init()) {
-		printf("Failed to initialize!\n");
-	} else {
-		if (!mainWindow.loadMedia()) {
-			printf("Failed to load media!\n");
-		} else {
-			mainWindow.run();
-		}
-	}
-	mainWindow.close();
+	mainWindow.test();
 	return 0;
 }

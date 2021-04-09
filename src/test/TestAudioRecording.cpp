@@ -1,4 +1,4 @@
-#include <core/Window.h>
+#include <util/TestBase.h>
 #include <core/Texture.h>
 #include <stdio.h>
 #include <sstream>
@@ -6,7 +6,7 @@
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
 
-struct TestAudioRecording : public Window {
+struct TestAudioRecording : public TestBase {
 public:
 	bool init() override {
 		bool success = true;
@@ -246,7 +246,6 @@ private:
 		ERROR = 5
 	};
 
-	SDL_Renderer* renderer = nullptr;
 	TTF_Font* font = nullptr;
 	SDL_Color textColor{0xFF, 0xFF, 0xFF};
 
@@ -275,15 +274,6 @@ Uint32 TestAudioRecording::bufferByteMaxPosition = 0;
 
 int main(int argc, char** argv) {
 	TestAudioRecording mainWindow;
-	if (!mainWindow.init()) {
-		printf("Failed to initialize!\n");
-	} else {
-		if (!mainWindow.loadMedia()) {
-			printf("Failed to load media!\n");
-		} else {
-			mainWindow.run();
-		}
-	}
-	mainWindow.close();
+	mainWindow.test();
 	return 0;
 }

@@ -1,11 +1,11 @@
-#include <core/Window.h>
+#include <util/TestBase.h>
 #include <core/Texture.h>
 #include <stdio.h>
 
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
 
-struct TestRenderingEx : public Window {
+struct TestRenderingEx : public TestBase {
 public:
 	bool init() override {
 		bool success = true;
@@ -131,7 +131,6 @@ public:
 
 private:
 	static constexpr int NUM_FRAMES = 4;
-	SDL_Renderer* renderer = nullptr;
 	SDL_Rect spriteClips[NUM_FRAMES];
 	Texture spriteSheetTexture;
 	Texture backgroundTexture;
@@ -144,15 +143,6 @@ private:
 
 int main(int argc, char** argv) {
 	TestRenderingEx mainWindow;
-	if (!mainWindow.init()) {
-		printf("Failed to initialize!\n");
-	} else {
-		if (!mainWindow.loadMedia()) {
-			printf("Failed to load media!\n");
-		} else {
-			mainWindow.run();
-		}
-	}
-	mainWindow.close();
+	mainWindow.test();
 	return 0;
 }

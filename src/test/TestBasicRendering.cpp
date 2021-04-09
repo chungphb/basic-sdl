@@ -1,12 +1,11 @@
-#include <core/Window.h>
-#include <SDL_image.h>
+#include <util/TestBase.h>
 #include <stdio.h>
 #include <string>
 
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
 
-struct TestBasicRendering : public Window {
+struct TestBasicRendering : public TestBase {
 public:
 	bool init() override {
 		bool success = true;
@@ -151,22 +150,12 @@ public:
 	}
 
 private:
-	SDL_Renderer* renderer = nullptr;
 	SDL_Texture* texture = nullptr;
 };
 
 
 int main(int argc, char** argv) {
 	TestBasicRendering mainWindow;
-	if (!mainWindow.init()) {
-		printf("Failed to initialize!\n");
-	} else {
-		if (!mainWindow.loadMedia()) {
-			printf("Failed to load media!\n");
-		} else {
-			mainWindow.run();
-		}
-	}
-	mainWindow.close();
+	mainWindow.test();
 	return 0;
 }

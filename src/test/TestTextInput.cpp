@@ -1,11 +1,11 @@
-#include <core/Window.h>
+#include <util/TestBase.h>
 #include <core/Texture.h>
 #include <stdio.h>
 
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
 
-struct TestTextInput : public Window {
+struct TestTextInput : public TestBase {
 public:
 	bool init() override {
 		bool success = true;
@@ -119,7 +119,6 @@ public:
 	}
 
 private:
-	SDL_Renderer* renderer = nullptr;
 	TTF_Font* font = nullptr;
 	Texture inputTextTexture;
 	Texture promptTextTexture;
@@ -127,15 +126,6 @@ private:
 
 int main(int argc, char** argv) {
 	TestTextInput mainWindow;
-	if (!mainWindow.init()) {
-		printf("Failed to initialize!\n");
-	} else {
-		if (!mainWindow.loadMedia()) {
-			printf("Failed to load media!\n");
-		} else {
-			mainWindow.run();
-		}
-	}
-	mainWindow.close();
+	mainWindow.test();
 	return 0;
 }

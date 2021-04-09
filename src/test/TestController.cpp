@@ -1,4 +1,4 @@
-#include <core/Window.h>
+#include <util/TestBase.h>
 #include <core/Texture.h>
 #include <stdio.h>
 
@@ -7,7 +7,7 @@ const int WINDOW_HEIGHT = 480;
 
 const int JOYSTICK_DEAD_ZONE = 8000;
 
-struct TestController : public Window {
+struct TestController : public TestBase {
 public:
 	bool init() override {
 		bool success = true;
@@ -140,7 +140,6 @@ public:
 	}
 
 private:
-	SDL_Renderer* renderer = nullptr;
 	Texture characterTexture;
 	Texture sunTexture;
 	Texture backgroundTexture;
@@ -152,15 +151,6 @@ private:
 
 int main(int argc, char** argv) {
 	TestController mainWindow;
-	if (!mainWindow.init()) {
-		printf("Failed to initialize!\n");
-	} else {
-		if (!mainWindow.loadMedia()) {
-			printf("Failed to load media!\n");
-		} else {
-			mainWindow.run();
-		}
-	}
-	mainWindow.close();
+	mainWindow.test();
 	return 0;
 }

@@ -1,11 +1,11 @@
-#include <core/Window.h>
+#include <util/TestBase.h>
 #include <core/Texture.h>
 #include <stdio.h>
 
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
 
-struct TestFile : public Window {
+struct TestFile : public TestBase {
 public:
 	bool init() override {
 		bool success = true;
@@ -179,7 +179,6 @@ public:
 private:
 	static constexpr int NUM_ELEMENTS = 12;
 	const std::string FILE_PATH = "data.bin";
-	SDL_Renderer* renderer = nullptr;
 	TTF_Font* font = nullptr;
 	Texture promptTextTexture;
 	Sint16 data[NUM_ELEMENTS] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
@@ -188,15 +187,6 @@ private:
 
 int main(int argc, char** argv) {
 	TestFile mainWindow;
-	if (!mainWindow.init()) {
-		printf("Failed to initialize!\n");
-	} else {
-		if (!mainWindow.loadMedia()) {
-			printf("Failed to load media!\n");
-		} else {
-			mainWindow.run();
-		}
-	}
-	mainWindow.close();
+	mainWindow.test();
 	return 0;
 }
