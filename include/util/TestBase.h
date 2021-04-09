@@ -6,6 +6,9 @@
 #include <SDL_mixer.h>
 #include <string>
 
+const int WINDOW_WIDTH = 640;
+const int WINDOW_HEIGHT = 480;
+
 struct TestBase {
 public:
 	virtual bool init() = 0;
@@ -22,5 +25,60 @@ public:
 
 protected:
 	SDL_Window* window = nullptr;
+	
+};
+
+struct BasicTestBase : public TestBase {
+public:
+	virtual bool init();
+
+	virtual bool loadMedia();
+
+	virtual void run();
+
+	virtual void close();
+
+	virtual std::string name();
+
+protected:
 	SDL_Renderer* renderer = nullptr;
+};
+
+struct BasicTestBaseWithTTF : public BasicTestBase {
+public:
+	virtual bool init();
+
+	virtual void close();
+
+	virtual std::string name();
+};
+
+struct BasicTestBaseWithAudio : public BasicTestBase {
+public:
+	virtual bool init();
+
+	virtual std::string name();
+};
+
+
+struct BasicTestBaseWithTTFAndAudio : public BasicTestBaseWithAudio {
+public:
+	virtual bool init();
+
+	virtual void close();
+
+	virtual std::string name();
+};
+
+struct BasicTestBaseWithController : public BasicTestBase {
+public:
+	virtual bool init();
+
+	virtual void close();
+
+	virtual std::string name();
+
+protected:
+	SDL_Joystick* gameController = nullptr;
+	SDL_Haptic* controllerHaptic = nullptr;
 };

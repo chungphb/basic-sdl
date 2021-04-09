@@ -1,45 +1,14 @@
 #include <util/TestBase.h>
 #include <core/Texture.h>
-#include <SDL_mixer.h>
 #include <stdio.h>
 
-const int WINDOW_WIDTH = 640;
-const int WINDOW_HEIGHT = 480;
-
-struct TestSound : public TestBase {
+struct TestSound : public BasicTestBaseWithAudio {
 public:
 	bool init() override {
-		bool success = true;
-		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
-			printf("SDL could not initialize! Error: %s\n", SDL_GetError());
+		bool success = BasicTestBaseWithAudio::init();
+		if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+			printf("SDL_mixer could not initialize! Error: %s\n", Mix_GetError());
 			success = false;
-		} else {
-			if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
-				printf("Warning: Linear texture filtering is not enabled!");
-			}
-			window = SDL_CreateWindow("Test sound!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
-			if (!window) {
-				printf("Window could not be created! Error: %s\n", SDL_GetError());
-				success = false;
-			} else {
-				renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-				if (!renderer) {
-					printf("Renderer could not be created! Error: %s\n", SDL_GetError());
-					success = false;
-				} else {
-					SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-					int imgFlags = IMG_INIT_PNG;
-					if (!(IMG_Init(imgFlags) & imgFlags)) {
-						printf("SDL2_image could not initialize! Error: %s\n", IMG_GetError());
-						success = false;
-					}
-
-					if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-						printf("SDL_mixer could not initialize! Error: %s\n", Mix_GetError());
-						success = false;
-					}
-				}
-			}
 		}
 		return success;
 	}
@@ -117,12 +86,7 @@ public:
 		soundEffect = nullptr;
 		Mix_FreeMusic(music);
 		music = nullptr;
-		SDL_DestroyRenderer(renderer);
-		renderer = nullptr;
-		SDL_DestroyWindow(window);
-		window = nullptr;
-		IMG_Quit();
-		SDL_Quit();
+		BasicTestBaseWithAudio::close();
 	}
 
 private:
