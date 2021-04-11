@@ -18,12 +18,14 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Util classes
 set(SDL_TEST_HEADERS
+	"include/core/Window.h"
 	"include/core/Texture.h"
 	"include/core/Button.h"
 	"include/core/Timer.h"
 	"include/util/TestBase.h"
 )
 set(SDL_TEST_SOURCES
+	"src/core/Window.cpp"
 	"src/core/Texture.cpp"
 	"src/core/Button.cpp"
 	"src/core/Timer.cpp"
@@ -87,3 +89,7 @@ target_link_libraries(TestFile PUBLIC sdl_test)
 # Lesson 34
 add_executable(TestAudioRecording "src/test/TestAudioRecording.cpp")
 target_link_libraries(TestAudioRecording PUBLIC sdl_test)
+
+# Lesson 35
+add_executable(TestWindow "src/test/TestWindow.cpp")
+target_link_libraries(TestWindow PUBLIC sdl_test)

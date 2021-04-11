@@ -14,13 +14,9 @@ enum ButtonSprite {
 struct Button {
 public:
 	Button();
-
 	void setSize(int w, int h);
-
 	void setPosition(int x, int y);
-
 	void handleEvent(SDL_Event* e);
-
 	void render(SDL_Renderer* renderer, Texture* buttonSpriteSheetTexture, SDL_Rect* buttonClips);
 
 private:
