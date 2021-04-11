@@ -20,10 +20,42 @@ public:
 
 private:
 	SDL_Window* window;
+
 	int width;
 	int height;
+
 	bool mouseFocus;
 	bool keyboardFocus;
 	bool fullScreen;
 	bool minimized;
+};
+
+struct WindowEx {
+public:
+	WindowEx();
+	bool init();
+	void handleEvent(SDL_Event& event);
+	void focus();
+	void render();
+	void free();
+	int getWidth();
+	int getHeight();
+	bool hasMouseFocus();
+	bool hasKeyboardFocus();
+	bool isMinimized();
+	bool isShown();
+
+private:
+	SDL_Window* window;
+	SDL_Renderer* renderer;
+	int windowID;
+
+	int width;
+	int height;
+
+	bool mouseFocus;
+	bool keyboardFocus;
+	bool fullScreen;
+	bool minimized;
+	bool shown;
 };

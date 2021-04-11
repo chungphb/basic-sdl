@@ -68,17 +68,106 @@ private:
 	Texture texture;
 };
 
-int main(int argc, char** argv) {
-	TestWindow mainWindow;
-	if (!mainWindow.init()) {
-		printf("Failed to initialize!\n");
-	} else {
-		if (!mainWindow.loadMedia()) {
-			printf("Failed to load media!\n");
+struct TestMultipleWindows {
+public:
+	bool init() {
+		bool success = true;
+		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+			printf("SDL could not initialize! Error: %s\n", SDL_GetError());
+			success = false;
 		} else {
-			mainWindow.run();
+			if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
+				printf("Warning: Linear texture filtering is not enabled!");
+			}
+			if (!windows[0].init()) {
+				printf("Window 0 could not be created! Error: %s\n", SDL_GetError());
+				success = false;
+			}
+		}
+		return success;
+	}
+
+	bool loadMedia() {
+		bool success = true;
+		return success;
+	}
+
+	void run() {
+		for (int i = 1; i < NUM_WINDOWS; i++) {
+			windows[i].init();
+		}
+		bool quit = false;
+		SDL_Event e;
+		while (!quit) {
+			while (SDL_PollEvent(&e) != 0) {
+				if (e.type == SDL_QUIT) {
+					quit = true;
+				}
+				for (int i = 0; i < NUM_WINDOWS; i++) {
+					windows[i].handleEvent(e);
+				}
+				if (e.type == SDL_KEYDOWN) {
+					auto id = e.key.keysym.sym - SDLK_1;
+					if (id >= 0 && id < NUM_WINDOWS) {
+						windows[id].focus();
+					}
+				}
+			}
+			for (int i = 0; i < NUM_WINDOWS; i++) {
+				windows[i].render();
+			}
+			bool allClosed = true;
+			for (int i = 0; i < NUM_WINDOWS; i++) {
+				if (windows[i].isShown()) {
+					allClosed = false;
+					break;
+				}
+			}
+			if (allClosed) {
+				quit = true;
+			}
 		}
 	}
-	mainWindow.close();
+
+	void close() {
+		for (int i = 0; i < NUM_WINDOWS; i++) {
+			windows[i].free();
+		}
+		SDL_Quit();
+	}
+
+private:
+	static constexpr int NUM_WINDOWS = 3;
+	WindowEx windows[NUM_WINDOWS];
+};
+
+int main(int argc, char** argv) {
+	{
+		TestWindow mainWindow;
+		if (!mainWindow.init()) {
+			printf("Failed to initialize!\n");
+		} else {
+			if (!mainWindow.loadMedia()) {
+				printf("Failed to load media!\n");
+			} else {
+				mainWindow.run();
+			}
+		}
+		mainWindow.close();
+	}
+	{
+		TestMultipleWindows mainWindow;
+		if (!mainWindow.init()) {
+			printf("Failed to initialize!\n");
+		} else {
+			if (!mainWindow.loadMedia()) {
+				printf("Failed to load media!\n");
+			} else {
+				mainWindow.run();
+			}
+		}
+		mainWindow.close();
+	}
+	
 	return 0;
 }
