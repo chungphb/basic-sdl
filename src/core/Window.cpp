@@ -119,6 +119,10 @@ bool Window::isMinimized() {
 	return minimized;
 }
 
+int WindowEx::numDisplays = 0;
+
+SDL_Rect* WindowEx::displayBounds = nullptr;
+
 WindowEx::WindowEx() {
 	window = nullptr;
 	renderer = nullptr;
@@ -148,6 +152,7 @@ bool WindowEx::init() {
 		} else {
 			SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 			windowID = SDL_GetWindowID(window);
+			windowDisplayID = SDL_GetWindowDisplayIndex(window);
 			shown = true;
 		}
 	}
@@ -155,9 +160,14 @@ bool WindowEx::init() {
 }
 
 void WindowEx::handleEvent(SDL_Event& event) {
+	bool updateTitle = false;
 	if (event.type == SDL_WINDOWEVENT && event.window.windowID == windowID) {
-		bool updateTitle = false;
 		switch (event.window.event) {
+			case SDL_WINDOWEVENT_MOVED: {
+				windowDisplayID = SDL_GetWindowDisplayIndex(window);
+				updateTitle = true;
+				break;
+			}
 			case SDL_WINDOWEVENT_SHOWN: {
 				shown = true;
 				break;
@@ -216,20 +226,55 @@ void WindowEx::handleEvent(SDL_Event& event) {
 				break;
 			}
 		}
-		if (updateTitle) {
-			std::stringstream title;
-			title << "Window - ID = " << windowID << ", Mouse Focus: " << (mouseFocus ? "ON" : "OFF") << ", Keyboard Focus: " << (keyboardFocus ? "ON" : "OFF");
-			SDL_SetWindowTitle(window, title.str().c_str());
+	} else if (event.type == SDL_KEYDOWN) {
+		bool switchDisplay = false;
+		switch (event.key.keysym.sym) {
+			case SDLK_RETURN: {
+				if (fullScreen) {
+					SDL_SetWindowFullscreen(window, SDL_FALSE);
+					fullScreen = false;
+				} else {
+					SDL_SetWindowFullscreen(window, SDL_TRUE);
+					fullScreen = true;
+					minimized = false;
+				}
+				break;
+			}
+			case SDLK_UP: {
+				windowDisplayID++;
+				switchDisplay = true;
+				break;
+			}
+			case SDLK_DOWN: {
+				windowDisplayID--;
+				switchDisplay = true;
+				break;
+			}
+			default: {
+				break;
+			}
 		}
-	} else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN) {
-		if (fullScreen) {
-			SDL_SetWindowFullscreen(window, SDL_FALSE);
-			fullScreen = false;
-		} else {
-			SDL_SetWindowFullscreen(window, SDL_TRUE);
-			fullScreen = true;
-			minimized = false;
+		if (switchDisplay) {
+			if (windowDisplayID < 0) {
+				windowDisplayID = numDisplays - 1;
+			} else if (windowDisplayID >= numDisplays) {
+				windowDisplayID = 0;
+			}
+			int x = displayBounds[windowDisplayID].x + (displayBounds[windowDisplayID].w - width) / 2;
+			int y = displayBounds[windowDisplayID].y + (displayBounds[windowDisplayID].h - height) / 2;
+			SDL_SetWindowPosition(window, x, y);
+			updateTitle = true;
 		}
+	}
+
+	if (updateTitle) {
+		std::stringstream title;
+		title << "Window - ";
+		title << "ID: " << windowID << ", ";
+		title << "Display: " << windowDisplayID << ", ";
+		title << "Mouse Focus: " << (mouseFocus ? "ON" : "OFF") << ", ";
+		title << "Keyboard Focus: " << (keyboardFocus ? "ON" : "OFF");
+		SDL_SetWindowTitle(window, title.str().c_str());
 	}
 }
 

@@ -141,33 +141,80 @@ private:
 	WindowEx windows[NUM_WINDOWS];
 };
 
+struct TestMultipleDisplays {
+public:
+	bool init() {
+		bool success = true;
+		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+			printf("SDL could not initialize! Error: %s\n", SDL_GetError());
+			success = false;
+		} else {
+			if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
+				printf("Warning: Linear texture filtering is not enabled!");
+			}
+			WindowEx::numDisplays = SDL_GetNumVideoDisplays();
+			if (WindowEx::numDisplays < 2) {
+				printf("Warning: Only one display connected!");
+			}
+			WindowEx::displayBounds = new SDL_Rect[WindowEx::numDisplays];
+			for (int i = 0; i < WindowEx::numDisplays; i++) {
+				SDL_GetDisplayBounds(i, &WindowEx::displayBounds[i]);
+			}
+			if (!window.init()) {
+				printf("Window could not be created! Error: %s\n", SDL_GetError());
+				success = false;
+			}
+		}
+		return success;
+	}
+
+	bool loadMedia() {
+		bool success = true;
+		return success;
+	}
+
+	void run() {
+		bool quit = false;
+		SDL_Event e;
+		while (!quit) {
+			while (SDL_PollEvent(&e) != 0) {
+				if (e.type == SDL_QUIT) {
+					quit = true;
+				}
+				window.handleEvent(e);
+			}
+			window.render();
+		}
+	}
+
+	void close() {
+		window.free();
+		SDL_Quit();
+	}
+
+private:
+	WindowEx window;
+};
+
+#define TEST(name) \
+{ \
+	name mainWindow; \
+	if (!mainWindow.init()) { \
+		printf("Failed to initialize!\n"); \
+	} \
+	else { \
+		if (!mainWindow.loadMedia()) { \
+			printf("Failed to load media!\n"); \
+		} else { \
+			mainWindow.run(); \
+		} \
+	} \
+	mainWindow.close(); \
+}
+
 int main(int argc, char** argv) {
-	{
-		TestWindow mainWindow;
-		if (!mainWindow.init()) {
-			printf("Failed to initialize!\n");
-		} else {
-			if (!mainWindow.loadMedia()) {
-				printf("Failed to load media!\n");
-			} else {
-				mainWindow.run();
-			}
-		}
-		mainWindow.close();
-	}
-	{
-		TestMultipleWindows mainWindow;
-		if (!mainWindow.init()) {
-			printf("Failed to initialize!\n");
-		} else {
-			if (!mainWindow.loadMedia()) {
-				printf("Failed to load media!\n");
-			} else {
-				mainWindow.run();
-			}
-		}
-		mainWindow.close();
-	}
-	
+	TEST(TestWindow)
+	TEST(TestMultipleWindows)
+	TEST(TestMultipleDisplays)
 	return 0;
 }

@@ -45,10 +45,15 @@ public:
 	bool isMinimized();
 	bool isShown();
 
+public:
+	static int numDisplays;
+	static SDL_Rect* displayBounds;
+
 private:
 	SDL_Window* window;
 	SDL_Renderer* renderer;
 	int windowID;
+	int windowDisplayID;
 
 	int width;
 	int height;
